@@ -74,7 +74,7 @@ Future<String?> ShowReplyBottomSheet(
                         String message = _replyController.text.trim();
                         if(isEdit){
                         
-                          String? result = await editContent!(replyId:id,content:message,context:context);
+                          String? result = await editContent!(Id:id,content:message,context:context);
                           Navigator.pop(context, result);
                           return;
                         }

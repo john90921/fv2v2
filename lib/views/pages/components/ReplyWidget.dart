@@ -112,7 +112,7 @@ class _ReplyWidgetState extends State<ReplyWidget> {
                           
                           if (replyResult == null) return;
 
-                          message = await replyProvider.addReply(taged_user_id: reply.taged_user_id, content:replyResult,comment_id: reply.comment_id, context: context);
+                          message = await replyProvider.addReply(taged_user_id: reply.owner_id, content:replyResult,comment_id: reply.comment_id, context: context);
 
                         
                           if (message!= null){

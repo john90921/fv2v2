@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:fv2/providers/CommentProvider.dart';
+import 'package:fv2/providers/NotificationProvider.dart';
 import 'package:fv2/providers/PostProvider.dart';
 import 'package:fv2/providers/UserProvider.dart';
 import 'package:fv2/token/TokenManager.dart';
 import 'package:fv2/views/WidgetTree.dart';
+import 'package:fv2/views/pages/CommunityPage.dart';
+import 'package:fv2/views/pages/NotificationPage.dart';
 import 'package:fv2/views/pages/PostFormPage.dart';
 import 'package:fv2/views/pages/HomePage.dart';
 import 'package:fv2/views/pages/LoginPage.dart';
 import 'package:fv2/views/pages/PostPage.dart';
+import 'package:fv2/views/pages/WebSocketTestPage.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 
@@ -28,13 +32,15 @@ void main() async{
         ChangeNotifierProvider(create: (context) => PostProvider()),
         ChangeNotifierProvider(create: (context) => Userprovider()),
         ChangeNotifierProvider(create: (context) => CommentProvider()),
+        ChangeNotifierProvider(create: (context) => NotificationProvider()),
         ChangeNotifierProxyProvider<PostProvider,CommentProvider>(
           create: (_) => CommentProvider(), 
           update: (_,postProvider,commentProvider) =>
             commentProvider!..setPostProvider(postProvider),
           )
       ],
-      child: MyApp(firstStartRoute : firstStartRoute),)
+      child: MyApp(firstStartRoute : firstStartRoute),
+    ),
     );
 }
 
@@ -71,8 +77,10 @@ class MyApp extends StatelessWidget {
         routes: {
           '/postPage':(context) => const WidgetTree(body: PostPage(), backbutton: true),
           '/postFormPage':(context) => const WidgetTree(body: PostFormPage(), backbutton: true),
-          '/login': (context) => const LoginPage(),
-          '/home': (context) => LoaderOverlay(child: const WidgetTree(body: Homepage(),backbutton: false)),
+          '/login': (context) => LoaderOverlay(child: const WidgetTree(body: CommunityPage(),backbutton: false)),
+          '/NotificationPage': (context) => LoaderOverlay(child: NotificationPage()),
+          '/home': (context) => LoaderOverlay(child: const WidgetTree(body: CommunityPage(),backbutton: false)),
+          '/communityPage':(context) => LoaderOverlay(child: const WidgetTree(body: CommunityPage(),backbutton: false)),
         },
           // home: WidgetTree(body: const Homepage()),
       ),

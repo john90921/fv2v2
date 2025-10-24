@@ -17,6 +17,7 @@ class ApiRequest{
   final String path;
   dynamic data;
 
+
   ApiRequest({
     required this.path,
     this.data

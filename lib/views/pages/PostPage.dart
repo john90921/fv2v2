@@ -25,6 +25,7 @@ class _PostPageState extends State<PostPage> {
   late int postId;
   bool _loaded = false;
   late Post? post;
+  late int? highlightedCommentId;
 
   // @override
   // void didChangeDependencies() { // called when the widget is inserted into the tree
@@ -42,6 +43,16 @@ class _PostPageState extends State<PostPage> {
 
   @override
   void initState() {
+
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+      // wait for widgets to be built then fetch
+      CommentProvider commentProvider = Provider.of<CommentProvider>(context, listen: false);
+      commentProvider.initial();  // this to reset the comment provider// must to be here to prevent the highlighted comment id from being persisted
+      if(highlightedCommentId!=null){
+        commentProvider.highlightedCommentId = highlightedCommentId; // pass the highlighted commentid
+      }
+      commentProvider.fetchComments(postId);
+    });
     // TODO: implement initState
 
     super.initState();
@@ -51,7 +62,9 @@ class _PostPageState extends State<PostPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_loaded) {
-      postId = ModalRoute.of(context)!.settings.arguments as int;
+       final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>; // intial the ppst it
+      postId = args['post_id'] as int;
+      highlightedCommentId = args['comment_id'] ?? null;
       post = Provider.of<PostProvider>(context, listen: false).getPost(postId); // get post from provider
 
       _loaded = true;

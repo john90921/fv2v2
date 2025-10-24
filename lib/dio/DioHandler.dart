@@ -17,10 +17,10 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fv2/main.dart';
 import 'package:fv2/token/TokenManager.dart';
-
 class DioHandler {
   final Dio dio;
-
+  
+  
   DioHandler._internal()
       : dio = Dio(BaseOptions(
           baseUrl: "http://192.168.56.1:8000/api/v1", // change to your API
@@ -40,7 +40,7 @@ class DioHandler {
         }
         // Attach Authorization header if token exists
         if (token != null) {
-          options.headers['Authorization'] = 'Bearer 47|QDmd999QtqR55zoqu0cb9D2pPKUCkGmTSMejHmQo11100a0a';
+          options.headers['Authorization'] = 'Bearer 79|tFzOBV3q7v2gC1S7fPu9NqLDqGxY8cWgEoMb31SG8b2bd5f7';
         }
         // options.headers['Authorization'] = 'Bearer 1|lPTgCt5iF6fBpSRk0pxa48nTZh48IZi4bFodWijS97ee52b7';
 
@@ -67,6 +67,7 @@ class DioHandler {
     )
     
     );
+
   }
 
   // Singleton instance

@@ -61,6 +61,7 @@ class CommentContentWidget extends StatelessWidget {
                         postID,
                         context,
                       ),
+                       onEdit: () => ShowReplyBottomSheet(context: context,isEdit: true, editContent: commentProvider.editComment, id: comment.id, content: comment.content), 
                       isFromPostPage: false,
                     );
 

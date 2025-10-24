@@ -2,7 +2,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-
 import 'package:fv2/models/Comment.dart';
 import 'package:fv2/models/Reply.dart';
 
@@ -33,6 +32,7 @@ class Post extends ChangeNotifier {
     required this.commentsCount,
     required this.ownerName,
     required this.ownerImage,
+    this.comments,
   });
 
   //  Post.postList({
@@ -114,7 +114,37 @@ class Post extends ChangeNotifier {
 
   factory Post.fromJson(String source) => Post.fromMap(json.decode(source) as Map<String, dynamic>);
 
+
+  Post copyWith({
+    int? id,
+    String? title,
+    String? content,
+    String? image,
+    DateTime? created_at,
+    DateTime? updated_at,
+    bool? isLiked,
+    int? likesCount,
+    int? commentsCount,
+    String? ownerName,
+    String? ownerImage,
+    List<Comment>? comments,
+  }) {
+    return Post(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      content: content ?? this.content,
+      image: image ?? this.image,
+      created_at: created_at ?? this.created_at,
+      updated_at: updated_at ?? this.updated_at,
+      isLiked: isLiked ?? this.isLiked,
+      likesCount: likesCount ?? this.likesCount,
+      commentsCount: commentsCount ?? this.commentsCount,
+      ownerName: ownerName ?? this.ownerName,
+      ownerImage: ownerImage ?? this.ownerImage,
+      comments: comments ?? this.comments,
+    );
+  }
 }
- 
+
 
     

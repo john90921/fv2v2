@@ -12,7 +12,10 @@ class CommentProvider extends ChangeNotifier {
   List<Comment> _comments = [];
   bool isAddingComment = false;
   late PostProvider _postProvider;
-
+  int? highlightedCommentId;
+  void initial(){
+    highlightedCommentId = null;
+  }
   void setPostProvider(PostProvider postProvider) {
     _postProvider = postProvider;
   }
@@ -36,6 +39,13 @@ class CommentProvider extends ChangeNotifier {
     }
   }
 
+  highlightComment(int commentId){
+    final index = _comments.indexWhere((p) => p.id == commentId);
+   if (index != -1) {
+    var item = _comments.removeAt(index);
+    _comments.insert(0, item);
+  }
+  }
   addRepliesCount(int commentId){
     final index = _comments.indexWhere((p) => p.id == commentId);
     print(index);
@@ -106,7 +116,15 @@ class CommentProvider extends ChangeNotifier {
             ); // add each post to the post list
           }
          _comments.addAll(fetchedComments);
-
+        if(highlightedCommentId != null){
+        int index = _comments.indexWhere((comment)=>
+           comment.id == highlightedCommentId
+        );
+        if(index != -1){
+         Comment removedComment = _comments.removeAt(index);
+          _comments.insert(0, removedComment);
+        } 
+        }
         } else {
           print("error not a list");
         }
@@ -170,6 +188,33 @@ class CommentProvider extends ChangeNotifier {
     finally {
       context.loaderOverlay.hide();
       notifyListeners();
+    }
+  }
+
+  Future<String?> editComment(
+   {
+    required int Id,
+    required String content,
+    required BuildContext context
+    }
+  ) async {
+    try {
+      context.loaderOverlay.show();
+      ApiResult result = await Apihelper.patch(
+        ApiRequest(path: "/comment/$Id", data: {"content": content}),
+      );
+      if (result.status == true) {
+        final index = _comments.indexWhere((p) => p.id == Id);
+        _comments[index].content = content;
+        notifyListeners();
+        return null;
+      } else {
+        return "error : ${result.message}";
+      }
+    } catch (e) {
+      return ("error $e");
+    } finally {
+      context.loaderOverlay.hide();
     }
   }
 }

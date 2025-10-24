@@ -1,11 +1,12 @@
-import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fv2/api/ApiHelper.dart';
+import 'package:fv2/models/Filter.dart';
 import 'package:fv2/models/Post.dart';
-import 'package:fv2/models/Comment.dart';
-import 'package:fv2/models/Reply.dart';
 import 'package:loader_overlay/loader_overlay.dart';
+import 'dart:isolate';
+import 'dart:convert';
 
 class PostProvider extends ChangeNotifier {
   bool isLoading = false;
@@ -13,51 +14,54 @@ class PostProvider extends ChangeNotifier {
   List<Post> _postList = [];
   bool isLoadingMore = false;
   List<Post> get postList => _postList;
+  Post? _selectedPost;
 
-  int pages =1;
+  int pages = 1;
   bool hasMore = true;
 
   void setPostList(List<Post> value) {
     _postList = value;
   }
 
-  Post? getPost(int id) {
-    try {
-      return _postList.firstWhere((p) => p.id == id);
-    } catch (_) {
-      return null;
-    }
+  void initialSelectedPost() {
+    _selectedPost = null;
   }
 
   Future<String?> likePost(int postId) async {
-    final index = postList.indexWhere((p) => p.id == postId);
-    // get the index of the post that has the postID from the postList
-    print(index);
-    if (index == -1) {
-      return "Post not found";
-    }
-    postList[index].isLiked =
-        !postList[index].isLiked; // if liked then change to false else true
-    if (postList[index].isLiked) {
-      postList[index].likesCount += 1; // if liked then increment else decrement
+    final Post? updatedPost;
+
+    if (_selectedPost != null) {
+      _selectedPost = _selectedPost!.copyWith(
+        isLiked: !_selectedPost!.isLiked,
+        likesCount: _selectedPost!.isLiked
+            ? _selectedPost!.likesCount - 1
+            : _selectedPost!.likesCount + 1,
+      );
+      // _selectedPost = updatedPost;
+      notifyListeners();
     } else {
-      postList[index].likesCount -=
-          1; // if disliked then decrement else increment}
+      final index = postList.indexWhere((p) => p.id == postId);
+      // get the index of the post that has the postID from the postList
+
+      if (index == -1) {
+        return "Post not found";
+      }
+      postList[index] = postList[index].copyWith(
+        isLiked: !postList[index].isLiked,
+        likesCount: postList[index].isLiked
+            ? postList[index].likesCount - 1
+            : postList[index].likesCount + 1,
+      );
+      // postList[index] = updatedPost;
+      notifyListeners();
+      print("post liked: ${postList[index].isLiked}");
     }
-    notifyListeners();
+
     try {
       ApiResult result = await Apihelper.post(
         ApiRequest(path: "/likes", data: {"id": postId, "type": "post"}),
       );
       if (result.status != true) {
-        // re
-        postList[index].isLiked = !postList[index].isLiked;
-        if (postList[index].isLiked) {
-          postList[index].likesCount += 1;
-        } else {
-          postList[index].likesCount -= 1;
-        }
-        notifyListeners();
         return " error : ${result.message}";
       }
     } catch (e) {
@@ -66,140 +70,160 @@ class PostProvider extends ChangeNotifier {
   }
 
   addCommentsCount(int postId) {
-    final index = postList.indexWhere((p) => p.id == postId);
-    print(index);
-    postList[index].commentsCount += 1;
-    notifyListeners();
-  }
-  minusCommentsCount(int postId) {
-    final index = postList.indexWhere((p) => p.id == postId);
-    print(index);
-    postList[index].commentsCount -= 1;
-    notifyListeners();
-  }
-
-//   addNewPost(
-//     String title,
-//     String content,
-//     String? imagePath,
-//     BuildContext context,
-//   ) async {
-//     try {
-//   FormData formData = FormData.fromMap({
-//     'title': title,
-//     'content': content,
-//     'image': imagePath != null
-//         ? await MultipartFile.fromFile(imagePath, filename: 'upload.jpg')
-//         : null,
-//   });
-//   ApiResult result = await Apihelper.post(
-//       ApiRequest(
-//         path: "/post",
-//         data: formData,
-//       ),
-//     );
-//     print(result.message);
-// } on Exception catch (e) {
-// print("error $e");
-//   // TODO
-// }
-
-
-//   }
-addNewPost(
-  String title,
-  String content,
-  String? imagePath,
-  BuildContext context,
-) async {
-  try { // Show loading overlay
-
-    // Create form data for Dio
-    FormData formData = FormData.fromMap({
-      'title': title,
-      'content': content,
-      if (imagePath != null)
-        'image': await MultipartFile.fromFile(
-          imagePath,
-          filename: 'upload.jpg',
-        ),
-    });
-
-    // Send POST request
-    ApiResult result = await Apihelper.post(
-      ApiRequest(
-        path: "/post",
-        data: formData,
-      ),
-    );
-
- 
-    if (result.status == true) {
-      Map<String, dynamic> data =
-            result.data as Map<String, dynamic>;
-
-      print(data);
-      Post post = Post.fromMap(data);
-      postList.insert(0, post);
-       //get the post list data as a list
-      // Example: refresh posts or show a success message
-      
-      // Optionally refresh UI
-      notifyListeners();
-      return "success added post";
+    if (_selectedPost != null && _selectedPost!.id == postId) {
+      _selectedPost = _selectedPost!.copyWith(
+        commentsCount: _selectedPost!.commentsCount += 1,
+      );
     } else {
-      return ("error ${result.message}");  
+      final index = postList.indexWhere((p) => p.id == postId);
+      if (index != -1) {
+        postList[index] = postList[index].copyWith(
+          commentsCount: postList[index].commentsCount += 1,
+        );
+      }
     }
-  } catch (e) {
-    return ("error $e");
+    notifyListeners();
   }
-}
-Future<String?> editPost(
-    {required Post post,
+
+  minusCommentsCount(int postId) {
+    if (_selectedPost != null && _selectedPost!.id == postId) {
+      _selectedPost = _selectedPost!.copyWith(
+        commentsCount: _selectedPost!.commentsCount -= 1,
+      );
+    } else {
+      final index = postList.indexWhere((p) => p.id == postId);
+      if (index != -1) {
+        postList[index] = postList[index].copyWith(
+          commentsCount: postList[index].commentsCount -= 1,
+        );
+      }
+    }
+    notifyListeners();
+  }
+
+  //   addNewPost(
+  //     String title,
+  //     String content,
+  //     String? imagePath,
+  //     BuildContext context,
+  //   ) async {
+  //     try {
+  //   FormData formData = FormData.fromMap({
+  //     'title': title,
+  //     'content': content,
+  //     'image': imagePath != null
+  //         ? await MultipartFile.fromFile(imagePath, filename: 'upload.jpg')
+  //         : null,
+  //   });
+  //   ApiResult result = await Apihelper.post(
+  //       ApiRequest(
+  //         path: "/post",
+  //         data: formData,
+  //       ),
+  //     );
+  //     print(result.message);
+  // } on Exception catch (e) {
+  // print("error $e");
+  //   // TODO
+  // }
+
+  //   }
+  addNewPost(
+    String title,
+    String content,
+    String? imagePath,
+    BuildContext context,
+  ) async {
+    try {
+      // Show loading overlay
+
+      // Create form data for Dio
+      FormData formData = FormData.fromMap({
+        'title': title,
+        'content': content,
+        if (imagePath != null)
+          'image': await MultipartFile.fromFile(
+            imagePath,
+            filename: 'upload.jpg',
+          ),
+      });
+
+      // Send POST request
+      ApiResult result = await Apihelper.post(
+        ApiRequest(path: "/post", data: formData),
+      );
+
+      if (result.status == true) {
+        Map<String, dynamic> data = result.data as Map<String, dynamic>;
+
+        print(data);
+        Post post = Post.fromMap(data);
+        postList.insert(0, post);
+        //get the post list data as a list
+        // Example: refresh posts or show a success message
+
+        // Optionally refresh UI
+        notifyListeners();
+        return "success added post";
+      } else {
+        print("error ${result.message}");
+      }
+    } catch (e) {
+      print("error $e");
+    }
+  }
+
+  Future<String?> editPost({
+    required Post post,
     required String title,
     required String content,
-    required String? newImagePath,}
-  ) async {
-  print("edit post");
-  try {
-  FormData formData;
+    required bool isRemoveImage,
+    required bool HaveUploadedImage,
+    required String? newImagePath,
+  }) async {
+    print("edit post");
+    try {
+      FormData formData;
 
-    formData = FormData.fromMap({ // if new image selected or delered image before, then send image field
-    'title': title,
-    'content': content,
-    '_method': 'PATCH',
-    if (newImagePath == null && post.image == null)
-    'remove_image': true,
-    if (newImagePath != null)
-    'image': await MultipartFile.fromFile(newImagePath, filename: 'post.jpg'), //if new image selected
-  });
+      formData = FormData.fromMap({
+        // if new image selected or delered image before, then send image field
+        'title': title,
+        'content': content,
+        '_method': 'PATCH',
+        if (isRemoveImage == true && HaveUploadedImage == true)
+          'remove_image': true,
+        if (newImagePath != null)
+          'image': await MultipartFile.fromFile(
+            newImagePath,
+            filename: 'post.jpg',
+          ), //if new image selected
+      });
 
-     ApiResult result = await Apihelper.patch(
-        ApiRequest(
-          path: "/post/${post.id}",
-          data: formData,
-        )
+      ApiResult result = await Apihelper.patch(
+        ApiRequest(path: "/post/${post.id}", data: formData),
       );
-      if(result.status == true){
+      if (result.status == true) {
         print(result.data);
-        Map<String, dynamic> data =
-            result.data as Map<String, dynamic>;
+        Map<String, dynamic> data = result.data as Map<String, dynamic>;
         print("update ${result.data}");
         Post updatedPost = Post.fromMap(data);
-        final index = postList.indexWhere((p) => p.id == post.id);
-        if(index != -1){
-          postList[index] = updatedPost;
-          notifyListeners();
+        if (_selectedPost != null && _selectedPost!.id == post.id) {
+          _selectedPost = updatedPost;
+        } else {
+          final index = postList.indexWhere((p) => p.id == post.id);
+          if (index != -1) {
+            postList[index] = updatedPost;
+            notifyListeners();
+          }
         }
         return ("success edited post");
-      } else{
-        return ("error ${result.message}");
+      } else {
+        print("error ${result.message}");
       }
-} on Exception catch (e) {
-  // TODO
-  return ("error $e");
-}
-
+    } on Exception catch (e) {
+      // TODO
+      print("error $e");
+    }
   }
 
   Future<String> deletePost(int id, BuildContext context) async {
@@ -231,50 +255,78 @@ Future<String?> editPost(
         .toList();
   }
 
-  LoadMoreTodayPostsData() async{
-    try{
+  LoadMoreTodayPostsData({Filter? filter}) async {
+    filter = filter ?? Filter.initial();
+
+    try {
       if (isLoadingMore || !hasMore) return;
       pages++;
       hasMore = true;
       isLoadingMore = true;
-      ApiResult result = await Apihelper.get(ApiRequest(path: "/todayPosts?page=$pages"));
+      ApiResult result = await Apihelper.get(
+        ApiRequest(path: "/todayPosts?page=$pages",
+        data: {
+          'date': filter.date,
+          'sortBy': filter.sortBy,
+          'searchInput': filter.searhInput,
+        }),
+      );
       if (result.data is List) {
         // check if data is a list
         List<dynamic> data =
             result.data as List<dynamic>; //get the post list data as a list
         List<Post> posts = parsePosts(data);
-        if(posts.isEmpty){
+        if (posts.isEmpty) {
           hasMore = false;
-        } else{
+        } else {
           _postList.addAll(posts);
         }
-    
       } else {
         print("no list data"); // if data is not a list
       }
-    }
-    catch(e){
+    } catch (e) {
       print("error $e");
-    } 
-    finally{
+    } finally {
       isLoadingMore = false;
       notifyListeners();
     }
   }
 
-  getTodayPostsData() async {
+  // getTodayPostsDataTest() async {
+  //   try {
+  //     pages = 1;
+  //     isLoading = true;
+  //     postList.clear();
+  //     notifyListeners(); // Notify listeners that data is loading
+  //     final posts = await compute(fetchTodayPostsInIsolate, "/todayPosts");
+
+  //     setPostList(posts); // set the post list with the parsed post list
+
+  //     print(postList.length);
+  //   } catch (e) {
+  //     print("error $e"); // handle errors
+  //   } finally {
+  //     isLoading = false;
+  //     notifyListeners(); // Notify listeners that data is loaded
+  //   }
+  // }
+ getTodayPostsDataTesting() async {
     try {
       pages = 1;
       isLoading = true;
+      postList.clear();
       notifyListeners(); // Notify listeners that data is loading
       ApiResult result = await Apihelper.get(ApiRequest(path: "/todayPosts"));
       if (result.data is List) {
         // check if data is a list
-        List<dynamic> data =  
+        List<dynamic> data =
             result.data as List<dynamic>; //get the post list data as a list
-        List<Post> posts =[];
-          for (var item in data) { // loop post through the post list
-            posts.add(Post.fromMap(item as Map<String, dynamic>)); // add each post to the post list
+        List<Post> posts = [];
+        for (var item in data) {
+          // loop post through the post list
+          posts.add(
+            Post.fromMap(item as Map<String, dynamic>),
+          ); // add each post to the post list
         }
 
         setPostList(posts); // set the post list with the parsed post list
@@ -288,5 +340,79 @@ Future<String?> editPost(
       isLoading = false;
       notifyListeners(); // Notify listeners that data is loaded
     }
+  }
+
+  getTodayPostsData() async {
+    try {
+      pages = 1;
+      isLoading = true;
+      postList.clear();
+      notifyListeners(); // Notify listeners that data is loading
+      ApiResult result = await Apihelper.get(ApiRequest(path: "/todayPosts"));
+      if (result.data is List) {
+        // check if data is a list
+        List<dynamic> data =
+            result.data as List<dynamic>; //get the post list data as a list
+        List<Post> posts = [];
+        for (var item in data) {
+          // loop post through the post list
+          posts.add(
+            Post.fromMap(item as Map<String, dynamic>),
+          ); // add each post to the post list
+        }
+
+        setPostList(posts); // set the post list with the parsed post list
+      } else {
+        print("no data"); // if data is not a list
+      }
+      print(postList.length);
+    } catch (e) {
+      print("error $e"); // handle errors
+    } finally {
+      isLoading = false;
+      notifyListeners(); // Notify listeners that data is loaded
+    }
+  }
+
+  Post? getPost(int id) {
+    if (_selectedPost != null && _selectedPost!.id == id) {
+      return _selectedPost;
+    }
+    try {
+      return _postList.firstWhere((p) => p.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  fetchPostByID(int postId) async {
+    try {
+      ApiResult result = await Apihelper.post(
+        ApiRequest(path: "/retrievePostById", data: {"post_id": postId}),
+      );
+      print(result.message);
+      if (result.status == true) {
+        Map<String, dynamic> data = result.data as Map<String, dynamic>;
+        _selectedPost = Post.fromMap(data);
+      } else {
+        print("Failed to load post: ${result.message}");
+        return null;
+      }
+    } on Exception catch (e) {
+      print("error $e");
+      return null;
+    }
+  }
+}
+
+// Function that runs in isolate
+Future<List<Post>> fetchTodayPostsInIsolate(String path) async {
+  ApiResult result = await Apihelper.get(ApiRequest(path: path));
+
+  if (result.data is List) {
+    final List data = result.data as List;
+    return data.map((e) => Post.fromMap(e as Map<String, dynamic>)).toList();
+  } else {
+    return [];
   }
 }

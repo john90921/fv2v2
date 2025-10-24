@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fv2/models/Post.dart';
@@ -22,9 +23,11 @@ class _PostFormPageState extends State<PostFormPage> {
   final _formKey = GlobalKey<FormState>();
   String? newtitle, newcontent;
   File? newimage;
+  String? oldImagePath;
   final TextEditingController titleController = TextEditingController();
   final TextEditingController contentController = TextEditingController();
   bool IsDeletedImage = false;
+  bool HaveUploadedImage = false;
 
   @override
   void initState() {
@@ -34,7 +37,10 @@ class _PostFormPageState extends State<PostFormPage> {
       titleController.text = widget.post!.title; // set title controller text
       contentController.text =
           widget.post!.content; // set content controller text
-
+      if (widget.post!.image != null) {
+        HaveUploadedImage = true;
+      }
+      oldImagePath = widget.post!.image;
     }
     super.initState();
   }
@@ -55,7 +61,7 @@ class _PostFormPageState extends State<PostFormPage> {
       if (image == null) return;
       final imageTemporary = File(image!.path);
       setState(() {
-        widget.post?.image = null;
+        oldImagePath = null;
         this.newimage = imageTemporary;
       });
     } on PlatformException catch (e) {
@@ -87,6 +93,7 @@ class _PostFormPageState extends State<PostFormPage> {
                           foregroundColor: Colors.white,
                         ),
                         onPressed: () async {
+                 
                           if (_formKey.currentState!.validate()) {
                             _formKey.currentState!.save();
                             print(
@@ -94,6 +101,7 @@ class _PostFormPageState extends State<PostFormPage> {
                             );
                             String? result;
                             try {
+                              context.loaderOverlay.show();
                               if (widget.post != null) {
                                 // editing existing post
                                 result =
@@ -104,6 +112,8 @@ class _PostFormPageState extends State<PostFormPage> {
                                       post: widget.post!,
                                       title: newtitle!,
                                       content: newcontent!,
+                                      isRemoveImage : IsDeletedImage,
+                                      HaveUploadedImage : HaveUploadedImage,
                                       newImagePath: newimage?.path,
                                     );
                               } else {
@@ -121,9 +131,11 @@ class _PostFormPageState extends State<PostFormPage> {
                             } on Exception catch (e) {
                               result = e.toString();
                             }
+                            context.loaderOverlay.hide();
                             if (result != null) {
                               showMessage(context: context, message: result);
                             }
+                  
                             Navigator.pop(context);
                           }
                         },
@@ -185,18 +197,12 @@ class _PostFormPageState extends State<PostFormPage> {
                             child: Center(
                               child:
                                   newimage != null ||
-                                       widget.post?.image !=
+                                       oldImagePath !=
                                           null // check if image or the url is not null //if url have photo then show , if image file picked then show
                                   ? Stack(
                                       // show image with remove button
                                       children: [
-                                        ClipRRect(
-                                          //image
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                          child: FormImage(),
-                                        ),
+                                        FormImage(),
                                         Positioned(
                                           right: 8,
                                           top: 8,
@@ -210,7 +216,8 @@ class _PostFormPageState extends State<PostFormPage> {
                                               ),
                                               onPressed: () {
                                                 setState(() {
-                                                  widget.post?.image = null;
+                                                  IsDeletedImage = true;
+                                                  oldImagePath = null;
                                                   newimage = null;
                                                 });
                                               },
@@ -265,16 +272,32 @@ class _PostFormPageState extends State<PostFormPage> {
     );
   }
 
-  Image FormImage() {
-    if ( widget.post?.image != null) {
+  FormImage(){
+    if(oldImagePath != null){ // check if old image of the post is not null then show image
+       return  CachedNetworkImage(
+                      imageUrl: oldImagePath!,
+                      fit: BoxFit.fill,
+                      placeholder: (context, url) =>
+                          const Center(child: CircularProgressIndicator()),
+                      errorWidget: (context, url, error) =>
+                          const Icon(Icons.broken_image),
+                    );
       // show image from url
-      return Image.network(
-        widget.post!.image!,
-        width: 200,
-        height: 200,
-        fit: BoxFit.cover,
-      );
+      // return Image.network(
+      //   widget.post!.image!,
+      //   width: 200,
+      //   height: 200,
+      //   fit: BoxFit.cover,
+      //   errorBuilder: (_, __, ___) => const Icon(Icons.broken_image),
+      // );
     }
-    return Image.file(width: 200, height: 200, newimage!);
+    return Image.file(
+      newimage!,
+      width: 200,
+      height: 200,
+      fit: BoxFit.cover,
+    );
   }
-}
+
+  }
+

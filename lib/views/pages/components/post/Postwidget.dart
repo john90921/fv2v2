@@ -4,10 +4,11 @@ import 'package:fv2/providers/PostProvider.dart';
 import 'package:fv2/views/pages/PostFormPage.dart';
 import 'package:fv2/views/pages/components/ConfirmDialog.dart';
 import 'package:fv2/views/pages/components/showOptionsSheet.dart';
+import 'package:fv2/views/pages/image/ImagePreviewPage.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-class Postwidget extends StatelessWidget {
+class Postwidget extends StatefulWidget {
   final int post_id;
   final bool isfromPostPage;
   const Postwidget({
@@ -15,11 +16,45 @@ class Postwidget extends StatelessWidget {
     required this.post_id,
     required this.isfromPostPage,
   });
+
   @override
-  Widget build(BuildContext context) {
-    final postProvider = Provider.of<PostProvider>(context, listen: true);
+  State<Postwidget> createState() => _PostwidgetState();
+}
+
+class _PostwidgetState extends State<Postwidget> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void deactivate() {
+      final postProvider = Provider.of<PostProvider>(context, listen: false);
+  postProvider.initialSelectedPost();
+    // TODO: implement dispose
+    super.deactivate();
+  }
+  @override
+  Widget build(BuildContext context){
+
+  
+    final postProvider = Provider.of<PostProvider>(context, listen: false);
+
+    // if(postProvider.getPost(widget.post_id) == null){ // if the post cannot found in post list 
+    //   return FutureBuilder(
+    //     future: postProvider.fetchPostByID(widget.post_id), 
+    //     builder: (context, post){
+    //       if(!post.hasData){
+    //         return const Center(child: CircularProgressIndicator());
+    //       }
+    //       if(post.data != null){
+
+    //       }
+    //     }
+    //     );
+    // }
     return Selector<PostProvider, Post?>(
-      selector: (_, provider) => provider.getPost(post_id),
+      selector: (_, provider) => provider.getPost(widget.post_id),
       builder: (_, post, __) {
         if (post == null) return const SizedBox.shrink();
         return Container(
@@ -51,8 +86,9 @@ class Postwidget extends StatelessWidget {
                       try {
                         showOptionsSheet(
                           context: context,
-                          onDelete: () =>
-                              postProvider.deletePost(post.id, context),
+                          onDelete: () =>postProvider.deletePost(post.id, context)
+
+                              ,
                           onEdit: () async{
   
                             await Navigator.push(
@@ -62,7 +98,7 @@ class Postwidget extends StatelessWidget {
                               ),
                             );
                           },
-                          isFromPostPage: false,
+                          isFromPostPage: widget.isfromPostPage,
                         );
                       } catch (e) {
                         print("error $e");
@@ -85,16 +121,28 @@ class Postwidget extends StatelessWidget {
                 child: Text(post.content), // Post content
               ),
               if (post.image != null && post.image!.isNotEmpty) ...[
-                SizedBox(
-                  height: 200,
-                  width: double.infinity,
-                  child: CachedNetworkImage(
-                    imageUrl: post.image!,
-                    fit: BoxFit.fill,
-                    placeholder: (context, url) =>
-                        const Center(child: CircularProgressIndicator()),
-                    errorWidget: (context, url, error) =>
-                        const Icon(Icons.broken_image),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ImagePreviewPage(
+                          imageUrl: post.image!,
+                        ),
+                      ),
+                    );
+                  },
+                  child: SizedBox(
+                    height: 200,
+                    width: double.infinity,
+                    child: CachedNetworkImage(
+                      imageUrl: post.image!,
+                      fit: BoxFit.fill,
+                      placeholder: (context, url) =>
+                          const Center(child: CircularProgressIndicator()),
+                      errorWidget: (context, url, error) =>
+                          const Icon(Icons.broken_image),
+                    ),
                   ),
                 ),
               ],
@@ -104,7 +152,7 @@ class Postwidget extends StatelessWidget {
                   alignment: MainAxisAlignment.start,
                   children: [
                     TextButton.icon(
-                      icon: post.isLiked
+                    icon: post.isLiked
                           ? Icon(Icons.thumb_up_alt)
                           : Icon(Icons.thumb_up_alt_outlined),
                       label: Text('${post.likesCount} Likes'),
@@ -117,11 +165,11 @@ class Postwidget extends StatelessWidget {
                       label: Text('${post.commentsCount} Comment'),
                       onPressed: () {
                         // Handle comment button press
-                        if (!isfromPostPage) {
+                        if (!widget.isfromPostPage) {
                           Navigator.pushNamed(
                             context,
                             '/postPage',
-                            arguments: post.id,
+                            arguments: {"post_id":post.id},
                           );
                         }
                       },
@@ -132,7 +180,10 @@ class Postwidget extends StatelessWidget {
             ],
           ),
         );
+      
       },
     );
   }
 }
+
+

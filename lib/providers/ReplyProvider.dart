@@ -188,7 +188,7 @@ class ReplyProvider extends ChangeNotifier {
 
   Future<String?> editReply(
    {
-    required int replyId,
+    required int Id,
     required String content,
     required BuildContext context
     }
@@ -196,10 +196,10 @@ class ReplyProvider extends ChangeNotifier {
     try {
       context.loaderOverlay.show();
       ApiResult result = await Apihelper.patch(
-        ApiRequest(path: "/reply/$replyId", data: {"content": content}),
+        ApiRequest(path: "/reply/$Id", data: {"content": content}),
       );
       if (result.status == true) {
-        final index = _replies.indexWhere((p) => p.id == replyId);
+        final index = _replies.indexWhere((p) => p.id == Id);
         if (index != -1) {
           _replies[index].content = content;
         }

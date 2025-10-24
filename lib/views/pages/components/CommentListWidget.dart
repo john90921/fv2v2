@@ -22,13 +22,13 @@ class CommentListWidget extends StatefulWidget {
 }
 
 class _CommentListWidgetState extends State<CommentListWidget> {
-   void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // wait for widgets to be built then fetch
-      Provider.of<CommentProvider>(context, listen: false).fetchComments(widget.postId);
-    });
-}
+//    void initState() {
+//     super.initState();
+//     WidgetsBinding.instance.addPostFrameCallback((_) {
+//       // wait for widgetsp to be built then fetch
+//       Provider.of<CommentProvider>(context, listen: false).fetchComments(widget.postId);
+//     });
+// }
   @override
   Widget build(BuildContext context) {
     return Consumer<CommentProvider>(
@@ -68,10 +68,30 @@ class _CommentListWidgetState extends State<CommentListWidget> {
                         shrinkWrap: true,
                         itemCount: comments.length,
                         itemBuilder: (Context, index) {
-                        late final ValueNotifier<bool> _showReplies = ValueNotifier<bool>(false);
-                        return  ChangeNotifierProvider(
-                          create: (context) => ReplyProvider(),
-                          child: CommentWidget(id:comments[index].id, postId: widget.postId)); // this will call the CommentWidget to display the comment // need the the comment id
+                        // late final ValueNotifier<bool> _showReplies = ValueNotifier<bool>(false);
+                        if(commentProvider.highlightedCommentId != null && comments[index].id == commentProvider.highlightedCommentId){
+                        return  Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("highlighted Comment"),
+                              ChangeNotifierProvider(
+                                create: (context) => ReplyProvider(),
+                                child: CommentWidget(id:comments[index].id, postId: widget.postId)),
+                            ],
+                          ),
+                        ); // this will call the CommentWidget to display the comment // need the the comment id
+                        }
+                        else{
+                          return  Column(
+                          children: [
+                            ChangeNotifierProvider(
+                              create: (context) => ReplyProvider(),
+                              child: CommentWidget(id:comments[index].id, postId: widget.postId)),
+                          ],
+                        );
+                        }
                         },
                       );
                       },

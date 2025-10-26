@@ -5,20 +5,40 @@ import 'package:flutter/material.dart';
 import 'package:fv2/models/Reply.dart';
 
 class Filter {
+  int? userId;
   String? date;
   String? sortBy;
   String? searhInput;
   Filter.initial({
+    this.userId = null,
     this.date = "today",
-    this.sortBy="latest",
-    this.searhInput = "",
+    this.sortBy="popular",
+    this.searhInput = null,
+  });
+  Filter.owner({
+    required this.userId,
+    required this.date,
+    required this.sortBy,
+    required this.searhInput,
   });
   Filter({
-    this.date,
-    this.sortBy,
-    this.searhInput,
+  this.userId,
+   required this.date,
+   required this.sortBy,
+  this.searhInput,
   });
-  
+
+
+  void setDate(String date){
+    this.date = date;
+  }
+  void setSortBy(String sortBy){
+    this.sortBy = sortBy;
+  }
+
+  void setSearchInput(String searchInput){
+    this.searhInput = searchInput;
+  }
   
 
   Map<String, dynamic> toMap() {

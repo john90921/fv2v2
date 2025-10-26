@@ -3,25 +3,33 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fv2/models/Post.dart';
-import 'package:fv2/providers/PostProvider.dart';
+import 'package:fv2/providers/UserProvider.dart';
 import 'package:fv2/utils/message_helper.dart';
 import 'package:fv2/views/pages/components/form/CustomFormField.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 
-class PostFormPage extends StatefulWidget {
-  final Post? post;
-  const PostFormPage({super.key, this.post});
+class ProfileEditPage extends StatefulWidget {
+  final String? name;
+  final String? imageUrl;
+  final String? description;
   
+
+  const ProfileEditPage({
+    super.key,
+    required this.name,
+    required this.imageUrl,
+    required this.description,
+  });
+
   @override
-  State<PostFormPage> createState() => _PostFormPageState();
+  State<ProfileEditPage> createState() => _ProfileEditPageState();
 }
 
-class _PostFormPageState extends State<PostFormPage> {
+class _ProfileEditPageState extends State<ProfileEditPage> {
   final _formKey = GlobalKey<FormState>();
-  String? newtitle, newcontent;
+  String? newName, newDescription;
   File? newimage;
   String? oldImagePath;
   final TextEditingController titleController = TextEditingController();
@@ -29,36 +37,26 @@ class _PostFormPageState extends State<PostFormPage> {
   bool IsDeletedImage = false;
   bool HaveUploadedImage = false;
 
-  @override
+    @override
   void initState() {
     super.initState();
-    if (widget.post != null) {
+   
       // check if editing existing post
-      titleController.text = widget.post!.title; // set title controller text
-      contentController.text =
-          widget.post!.content; // set content controller text
-      if (widget.post!.image != null) {
+      titleController.text = widget.name ?? ''; // set title controller text
+      contentController.text = widget.description ?? ''; // set content controller text
+      if (widget.imageUrl != null) {
         HaveUploadedImage = true;
       }
-      oldImagePath = widget.post!.image;
-    }
-    super.initState();
+      oldImagePath = widget.imageUrl;
+  
+      super.initState();
   }
-
-  @override
-  void dispose() {
-    titleController.dispose();
-    contentController.dispose();
-    super.dispose();
-  }
-
-  Future pickImage(ImageSource source, BuildContext context) async {
+   Future pickImage(ImageSource source, BuildContext context) async {
     // Use image_picker package to pick image from gallery or camera
     try {
-
       final image = await ImagePicker().pickImage(source: source);
       if (image == null) return;
-      final imageTemporary = File(image!.path);
+      final imageTemporary = File(image.path);
       setState(() {
         oldImagePath = null;
         this.newimage = imageTemporary;
@@ -67,12 +65,11 @@ class _PostFormPageState extends State<PostFormPage> {
       print("Failed to pick image: $e");
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.post != null ? "Edit Post" : "New Post"),
+        title: Text('Edit Profile'),
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -89,95 +86,7 @@ class _PostFormPageState extends State<PostFormPage> {
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
-                  Row(
-                    //button row
-                    mainAxisAlignment: MainAxisAlignment.end, // align to right
-                    children: [
-                      TextButton(
-                        style: TextButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          foregroundColor: Colors.white,
-                        ),
-                        onPressed: () async {
-                 
-                          if (_formKey.currentState!.validate()) {
-                            _formKey.currentState!.save();
-                            print(
-                              "Title: $newtitle, Content: $newcontent, Image: $newimage.path",
-                            );
-                            String? result;
-                            try {
-                              if (widget.post != null) {
-                                // editing existing post
-                                result =
-                                    await Provider.of<PostProvider>(
-                                      context,
-                                      listen: false,
-                                    ).editPost(
-                                      post: widget.post!,
-                                      title: newtitle!,
-                                      content: newcontent!,
-                                      isRemoveImage : IsDeletedImage,
-                                      HaveUploadedImage : HaveUploadedImage,
-                                      newImagePath: newimage?.path,
-                                    );
-                              } else {
-                                result =
-                                    await Provider.of<PostProvider>(
-                                      context,
-                                      listen: false,
-                                    ).addNewPost(
-                                      newtitle!,
-                                      newcontent!,
-                                      newimage?.path,
-                                      context,
-                                    );
-                              }
-                             
-                            } on Exception catch (e) {
-                              result = e.toString();
-                            }
-                            if (result != null) {
-                              showMessage(context: context, message: result);
-                            }
-                            if(context.mounted){
-                            Navigator.pop(context);
-                            }
-                          }
-                        },
-                        child: Text("Post"),
-                      ),
-                    ],
-                  ),
-                  CustomFormField(
-                    controller: titleController,
-                    hintText: "Title",
-                    minLines: 1,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Please enter title";
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      newtitle = value;
-                    },
-                  ),
-                  CustomFormField(
-                    controller: contentController,
-                    hintText: "Content",
-                    minLines: 5,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Please enter content";
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      newcontent = value;
-                    },
-                  ),
-                  Container(
+                   Container(
                     //image display  and  picker container
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.grey),
@@ -248,10 +157,8 @@ class _PostFormPageState extends State<PostFormPage> {
                                 style: TextButton.styleFrom(
                                   backgroundColor: Color(0xFFE5E7EB),
                                 ),
-                                onPressed: () {
-                                  if (!mounted) return;
-                                  pickImage(ImageSource.camera, context);
-                                },
+                                onPressed: () =>
+                                    pickImage(ImageSource.camera, context),
                                 icon: const Icon(Icons.camera_alt),
                                 label: const Text("Camera"),
                               ),
@@ -260,10 +167,8 @@ class _PostFormPageState extends State<PostFormPage> {
                                 style: TextButton.styleFrom(
                                   backgroundColor: Color(0xFFE5E7EB),
                                 ),
-                                onPressed: (){
-                                  if (!mounted) return;
-                                  pickImage(ImageSource.gallery, context);
-                                },
+                                onPressed: () =>
+                                    pickImage(ImageSource.gallery, context),
                                 icon: const Icon(Icons.photo),
                                 label: const Text("Gallery"),
                               ),
@@ -272,6 +177,68 @@ class _PostFormPageState extends State<PostFormPage> {
                         ],
                       ),
                     ),
+                  ),               
+                  CustomFormField(
+                    controller: titleController,
+                    hintText: "name",
+                    minLines: 1,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Please enter name";
+                      }
+                      return null;
+                    },
+                    onSaved: (value) {
+                      newName = value;
+                    },
+                  ),
+                  CustomFormField(
+                    controller: contentController,
+                    hintText: "description",
+                    minLines: 5,
+                    validator: (value) {
+                      return null;
+                    },
+                    onSaved: (value) {
+                      newDescription = value;
+                    },
+                  ),
+                  Row(
+                    //button row
+                    mainAxisAlignment: MainAxisAlignment.end, // align to right
+                    children: [
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
+                        ),
+                        onPressed: () async {
+                 
+                          if (_formKey.currentState!.validate()) {
+                            _formKey.currentState!.save();
+                            print("Name: $newName");
+                            print("Description: $newDescription");
+                            print("Image: $newimage");
+                            // Call provider to update profile
+                          String? message =  await Provider.of<Userprovider>(context, listen: false)
+                                .editProfile(
+                              name: newName!,
+                              description: newDescription!,
+                              HaveUploadedImage: HaveUploadedImage,
+                              newImagePath: newimage?.path,
+                              isRemoveImage: IsDeletedImage,
+                            );
+                            if(context.mounted){
+                            showMessage(context: context, message: message!);
+                            }
+                          
+                            Navigator.pop(context);
+                          
+                          }
+                        },
+                        child: Text("Post"),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -283,7 +250,6 @@ class _PostFormPageState extends State<PostFormPage> {
       ),
     );
   }
-
   FormImage(){
     if(oldImagePath != null){ // check if old image of the post is not null then show image
        return  CachedNetworkImage(
@@ -313,3 +279,4 @@ class _PostFormPageState extends State<PostFormPage> {
 
   }
 
+ 

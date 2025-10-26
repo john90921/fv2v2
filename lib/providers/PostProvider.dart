@@ -9,22 +9,42 @@ import 'dart:isolate';
 import 'dart:convert';
 
 class PostProvider extends ChangeNotifier {
+  
   bool isLoading = false;
   bool success = false;
   List<Post> _postList = [];
   bool isLoadingMore = false;
   List<Post> get postList => _postList;
   Post? _selectedPost;
+  Filter? _currentFilter = Filter.initial();
+  bool _disposed = false;
 
   int pages = 1;
   bool hasMore = true;
+  void setCurrentFilter(Filter? filter){
+    _currentFilter = filter;
+  }
+  Filter? get currentFilter => _currentFilter;
+    @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
+  @override
+  void notifyListeners() {
+    if (!_disposed) {
+      super.notifyListeners();
+    }
+  }
 
   void setPostList(List<Post> value) {
     _postList = value;
   }
 
-  void initialSelectedPost() {
-    _selectedPost = null;
+  void initial() {
+    _currentFilter = Filter.initial(); // reset filter to initial values
+    _selectedPost = null; //initialSelectedPost  // for certain posr page
   }
 
   Future<String?> likePost(int postId) async {
@@ -52,7 +72,6 @@ class PostProvider extends ChangeNotifier {
             ? postList[index].likesCount - 1
             : postList[index].likesCount + 1,
       );
-      // postList[index] = updatedPost;
       notifyListeners();
       print("post liked: ${postList[index].isLiked}");
     }
@@ -255,20 +274,37 @@ class PostProvider extends ChangeNotifier {
         .toList();
   }
 
-  LoadMoreTodayPostsData({Filter? filter}) async {
-    filter = filter ?? Filter.initial();
+  void applySearch(String searchInput){
+    _currentFilter?.searhInput = searchInput;
+    getTodayPostsDataTesting().catchError((e) {
+      print("error $e");
+    });
+  }
+
+
+  LoadMoreTodayPostsData() async {
+  print("load _currentFilter.date: ${_currentFilter?.date}, _currentFilter.sortBy: ${_currentFilter?.sortBy}, _currentFilter?.searhInput: ${_currentFilter?.searhInput}");
 
     try {
       if (isLoadingMore || !hasMore) return;
       pages++;
       hasMore = true;
       isLoadingMore = true;
+      Filter filter = Filter(date: _currentFilter?.date, sortBy: _currentFilter?.sortBy, searhInput: _currentFilter?.searhInput, userId: _currentFilter?.userId);
+      String date = filter.date ?? "today";
+      String sortBy = filter.sortBy ?? "popular";
+      String searchInput = filter.searhInput ?? "";
+      int? userId = filter.userId;
       ApiResult result = await Apihelper.get(
-        ApiRequest(path: "/todayPosts?page=$pages",
+        ApiRequest(path: "/communityPosts",
         data: {
-          'date': filter.date,
-          'sortBy': filter.sortBy,
-          'searchInput': filter.searhInput,
+          'page': pages,
+          'date': date,
+          'sortBy': sortBy,
+          if(searchInput != "" && searchInput != null) 
+          'searchInput': searchInput,
+          if(userId != null)
+          'userId': userId,
         }),
       );
       if (result.data is List) {
@@ -309,15 +345,34 @@ class PostProvider extends ChangeNotifier {
   //     isLoading = false;
   //     notifyListeners(); // Notify listeners that data is loaded
   //   }
-  // }
+  // }dolo
  getTodayPostsDataTesting() async {
+  print("_currentFilter.date: ${_currentFilter?.date}, _currentFilter.sortBy: ${_currentFilter?.sortBy}, _currentFilter?.searhInput: ${_currentFilter?.searhInput}");
     try {
       pages = 1;
       isLoading = true;
       postList.clear();
       notifyListeners(); // Notify listeners that data is loading
-      ApiResult result = await Apihelper.get(ApiRequest(path: "/todayPosts"));
-      if (result.data is List) {
+      Filter filter = Filter(date: _currentFilter?.date, sortBy: _currentFilter?.sortBy, searhInput: _currentFilter?.searhInput, userId: _currentFilter?.userId);
+      String date = filter.date ?? "today";
+      String sortBy = filter.sortBy ?? "popular";
+      String searchInput = filter.searhInput ?? "";
+      int? userId = filter.userId;
+      ApiResult result = await Apihelper.get(ApiRequest(path: "/communityPosts",
+     
+      data: {
+          'date': date,
+          'sortBy': sortBy,
+          if(searchInput != "" && searchInput != null) 
+          'searchInput': searchInput,
+          if(userId != null)
+          'userId': userId,
+        }
+      )
+      
+      );
+
+      if (result.status) {
         // check if data is a list
         List<dynamic> data =
             result.data as List<dynamic>; //get the post list data as a list
@@ -328,8 +383,8 @@ class PostProvider extends ChangeNotifier {
             Post.fromMap(item as Map<String, dynamic>),
           ); // add each post to the post list
         }
-
-        setPostList(posts); // set the post list with the parsed post list
+        setPostList(posts);
+ // set the post list with the parsed post list
       } else {
         print("no data"); // if data is not a list
       }
@@ -348,7 +403,7 @@ class PostProvider extends ChangeNotifier {
       isLoading = true;
       postList.clear();
       notifyListeners(); // Notify listeners that data is loading
-      ApiResult result = await Apihelper.get(ApiRequest(path: "/todayPosts"));
+      ApiResult result = await Apihelper.get(ApiRequest(path: "/communityPosts"));
       if (result.data is List) {
         // check if data is a list
         List<dynamic> data =

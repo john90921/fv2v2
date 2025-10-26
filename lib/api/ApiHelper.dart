@@ -33,6 +33,27 @@ class Apihelper {
         return ApiResult(status:data["status"], message: data["message"],data: data["data"]);
       }
       on DioException catch(e){
+        String? message;
+      //   if(e.response != null){
+      //     final status = e.response?.statusCode ?? 0;
+      //     final data = e.response?.data;
+      //      if (status == 422) {
+      //   // ✅ Validation error
+      //   final errors = data['errors'] as Map<String, dynamic>?;
+      //   final firstError = errors?.values.first[0] ?? 'Invalid input';
+      //   message = firstError;
+      // }
+      //  if (status == 403) {
+      //   message = 'Forbidden: You do not have permission.';
+      // } else if (status == 404) {
+      //   message = 'Not Found: API endpoint missing.';
+      // } else if (status == 500) {
+      //   message = 'Server error. Please try again later.';
+      // } else {
+      //   message = 'Error ${status}: ${data['message'] ?? 'Unknown error'}';
+      // }
+
+      //   }
        if (e.response != null && e.response?.statusCode == 422) {
         final errors = e.response?.data['errors'];
         final firstError = errors.values.first[0];
@@ -44,7 +65,7 @@ class Apihelper {
   static Future<ApiResult> get(ApiRequest apiRequest) async{
      Dio _dio = DioHandler.instance.dio;
       try{
-        final response = await _dio.get(apiRequest.path);
+        final response = await _dio.get(apiRequest.path, queryParameters: apiRequest.data);
         final data = response.data;
         return ApiResult(status:data["status"], message: data["message"],data: data["data"]); 
       }

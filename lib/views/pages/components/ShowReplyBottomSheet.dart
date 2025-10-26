@@ -75,11 +75,14 @@ Future<String?> ShowReplyBottomSheet(
                         if(isEdit){
                         
                           String? result = await editContent!(Id:id,content:message,context:context);
+                          if(context.mounted){
                           Navigator.pop(context, result);
+                          }
                           return;
                         }
-                      
-                        Navigator.pop(context, message);
+                      if(context.mounted){
+                          Navigator.pop(context, message);
+                          }
                       }
                     },
                     child: const Text("Send"),

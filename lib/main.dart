@@ -6,11 +6,15 @@ import 'package:fv2/providers/UserProvider.dart';
 import 'package:fv2/token/TokenManager.dart';
 import 'package:fv2/views/WidgetTree.dart';
 import 'package:fv2/views/pages/CommunityPage.dart';
+import 'package:fv2/views/pages/LoginPageTesting.dart';
 import 'package:fv2/views/pages/NotificationPage.dart';
+import 'package:fv2/views/pages/Disease/PhotoGuide.dart';
 import 'package:fv2/views/pages/PostFormPage.dart';
 import 'package:fv2/views/pages/HomePage.dart';
 import 'package:fv2/views/pages/LoginPage.dart';
 import 'package:fv2/views/pages/PostPage.dart';
+import 'package:fv2/views/pages/postHistory/PostHistoryPage.dart';
+import 'package:fv2/views/pages/profile/ProfilePage.dart';
 import 'package:fv2/views/pages/WebSocketTestPage.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
@@ -22,10 +26,8 @@ void main() async{
 
   WidgetsFlutterBinding.ensureInitialized();
   final token = await TokenManager.instance.loadAccessToken();
-  final String firstStartRoute = token != null ? '/home' : '/login';
-
-  
-
+  final String firstStartRoute = token != null ? '/widgettree' : '/login';
+  print("token at main.dart: $token");
   runApp(
     MultiProvider(
       providers: [
@@ -75,12 +77,27 @@ class MyApp extends StatelessWidget {
       ),
         initialRoute: firstStartRoute,
         routes: {
-          '/postPage':(context) => const WidgetTree(body: PostPage(), backbutton: true),
-          '/postFormPage':(context) => const WidgetTree(body: PostFormPage(), backbutton: true),
-          '/login': (context) => LoaderOverlay(child: const WidgetTree(body: CommunityPage(),backbutton: false)),
+          '/postPage':(context) => LoaderOverlay(child: PostPage()),
+          '/postFormPage':(context) => LoaderOverlay(child: PostFormPage()),
+          '/login': (context) => LoginPageTesting(),
           '/NotificationPage': (context) => LoaderOverlay(child: NotificationPage()),
-          '/home': (context) => LoaderOverlay(child: const WidgetTree(body: CommunityPage(),backbutton: false)),
-          '/communityPage':(context) => LoaderOverlay(child: const WidgetTree(body: CommunityPage(),backbutton: false)),
+          '/postHistory': (context) => LoaderOverlay(child: PostHistoryPage()),
+    //       '/home': (context) =>  ProfilePage(
+    //   name: 'John Doe',
+    //   imageUrl: 'https://via.placeholder.com/150',
+    //   description: 'Software developer passionate about Flutter and Laravel integration.',
+    // ),
+      '/widgettree': (context) => LoginPageTesting(),
+      //     '/home': (context) => ChangeNotifierProvider(
+      //   create: (_) => PostProvider(),
+      //   child: LoaderOverlay(child:  Homepage()),
+      // ),
+      // '/communityPage': (context) => ChangeNotifierProvider(
+      //   create: (_) => PostProvider(),
+      //   child: LoaderOverlay(child:  CommunityPage()),
+      // ),
+          '/home': (context) => LoaderOverlay(child:  Homepage()),
+          '/communityPage':(context) => LoaderOverlay(child:  CommunityPage()),
         },
           // home: WidgetTree(body: const Homepage()),
       ),

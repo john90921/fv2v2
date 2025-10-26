@@ -1,27 +1,38 @@
 class User {
-  String id;
+  int id;
+  int profile_id;
   String email;
-  String role;
   String name;
-  String profile_Image;
+  String? description;
+  String? profile_Image;
   User({
     required this.id,
+    required this.profile_id,
     required this.email,
-    required this.role,
-  required this.name,
+    required this.name,
+    required this.description,
     required this.profile_Image,
   });
+
+  User.initial()
+      : id = 0,
+        profile_id = 0,
+        email = "",
+        name = "",
+        description = null,
+        profile_Image = null;
   factory User.fromMap(Map<String, dynamic> map) {
     return User(
-      id: map['id'].toString(),
-      email: map['email'] ?? '',
-      role: map['role'] ?? '',
-      name: map['name'] ?? '',
+      id: map['id'],
+      profile_id: map['profile_id'],
+      email: map['email'],
+      name: map['name'],
+      description: map['description'] ?? '',
       profile_Image: map['profile_image'] ?? '',
     );
   }
 
-  bool IsAdmin() {
-    return role.toLowerCase() == 'admin';
+  bool checkUserID(int id){
+    return this.id == id;
   }
 }

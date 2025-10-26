@@ -17,6 +17,7 @@ import 'package:provider/provider.dart';
 
 class PostPage extends StatefulWidget {
   const PostPage({super.key});
+  
   @override
   State<PostPage> createState() => _PostPageState();
 }
@@ -77,85 +78,93 @@ class _PostPageState extends State<PostPage> {
   Widget build(BuildContext context) {
     print('Post ID: $postId');
     if (post == null) {
-      return const Center(child: Text("Post deleted or not found"));
+      return Scaffold(
+          appBar: AppBar(
+        title: const Text("Post Details"),
+        leading: const BackButton(),
+          ),
+        body: const Center(child: Text("Post deleted or not found")));
     }
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          Postwidget(post_id: postId, isfromPostPage: true),
-          Divider(),
-          Column(
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Post Details"),
+        leading: const BackButton(),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
             children: [
-              Container(
-                // Comment input field
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        backgroundImage: NetworkImage(
-                          "https://static0.srcdn.com/wordpress/wp-content/uploads/2024/02/nami-from-one-piece.jpg",
-                        ), // User avatar image
-                      ),
-                      SizedBox(width: 10),
-                      Expanded(
-                        child: TextField(
-                          controller: _commentController,
-                          minLines: 1, // Start with 1 line
-                          maxLines: null,
-                          // Expand infinitely as user types
-                          decoration: InputDecoration(
-                            hintText: "Add a comment...",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20),
+              Postwidget(post_id: postId, isfromPostPage: true),
+              Divider(),
+              Column(
+                children: [
+                  Container(
+                    // Comment input field
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                      
+                          Expanded(
+                            child: TextField(
+                              controller: _commentController,
+                              minLines: 1, // Start with 1 line
+                              maxLines: null,
+                              // Expand infinitely as user types
+                              decoration: InputDecoration(
+                                hintText: "Add a comment...",
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.send),
-                        onPressed: () async {
-                          print(_commentController.text);
-                          String content = _commentController.text.trim();
-                          if (content.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text("Comment cannot be empty"),
-                              ),
-                            );
-                            return;
-                          }
-                          FocusScope.of(context).unfocus(); // Hide keyboard
-                          _commentController.clear();
-
-                          // Clear immediately for better UX
-                          try {
-                            String? message =
-                                await Provider.of<CommentProvider>(
+                          IconButton(
+                            icon: Icon(Icons.send),
+                            onPressed: () async {
+                              print(_commentController.text);
+                              String content = _commentController.text.trim();
+                              if (content.isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text("Comment cannot be empty"),
+                                  ),
+                                );
+                                return;
+                              }
+                              FocusScope.of(context).unfocus(); // Hide keyboard
+                              _commentController.clear();
+        
+                              // Clear immediately for better UX
+                              try {
+                                String? message =
+                                    await Provider.of<CommentProvider>(
+                                      context,
+                                      listen: false,
+                                    ).addComments(postId, content, context);
+                                ScaffoldMessenger.of(
                                   context,
-                                  listen: false,
-                                ).addComments(postId, content, context);
-                            ScaffoldMessenger.of(
-                              context,
-                            ).showSnackBar(SnackBar(content: Text(message!)));
-                          } catch (e) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text("Failed to add comment: $e"),
-                              ),
-                            );
-                          }
-                        },
+                                ).showSnackBar(SnackBar(content: Text(message!)));
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text("Failed to add comment: $e"),
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
+        // check if post has comments
+              CommentListWidget(postId: post!.id), // if not, just return "no comments yet"
             ],
           ),
-    // check if post has comments
-          CommentListWidget(postId: post!.id), // if not, just return "no comments yet"
-        ],
+        ),
       ),
     );
   }

@@ -16,6 +16,7 @@ class Post extends ChangeNotifier {
   int likesCount;
   int commentsCount;
   final String ownerName;
+  final int owner_id;
   final String? ownerImage;
   List<Comment>? comments;
 
@@ -30,6 +31,7 @@ class Post extends ChangeNotifier {
     required this.isLiked,
     required this.likesCount,
     required this.commentsCount,
+    required this.owner_id,
     required this.ownerName,
     required this.ownerImage,
     this.comments,
@@ -89,6 +91,7 @@ class Post extends ChangeNotifier {
       'created_at': created_at.toUtc().toIso8601String(),
       'updated_at': updated_at.toUtc().toIso8601String(),
       'owner': ownerName,
+      'owner_id': owner_id,
       'ownerImage': ownerImage,
       'comments': comments != null ? comments!.map((x) => x.toMap()).toList() : [],
     };
@@ -105,6 +108,7 @@ class Post extends ChangeNotifier {
       isLiked: map['is_liked'] ?? false,
       likesCount: map['likes_count'] ?? 0,
       commentsCount: map['comments_count'] ?? 0,
+      owner_id: map['owner_id'] as int,
       ownerName: map['owner_name'] ?? 'no name',
       ownerImage: map['owner_image'] as String?,
     );
@@ -127,6 +131,7 @@ class Post extends ChangeNotifier {
     int? commentsCount,
     String? ownerName,
     String? ownerImage,
+    int? owner_id,
     List<Comment>? comments,
   }) {
     return Post(
@@ -140,6 +145,7 @@ class Post extends ChangeNotifier {
       likesCount: likesCount ?? this.likesCount,
       commentsCount: commentsCount ?? this.commentsCount,
       ownerName: ownerName ?? this.ownerName,
+      owner_id : owner_id ?? this.owner_id,
       ownerImage: ownerImage ?? this.ownerImage,
       comments: comments ?? this.comments,
     );

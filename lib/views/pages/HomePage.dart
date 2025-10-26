@@ -16,15 +16,17 @@ class _HomepageState extends State<Homepage> {
   };
   @override
   void initState() {
-    // TODO: implement initState
-    super.initState();
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    Provider.of<PostProvider>(context, listen: false).initial();
+  });    
+  super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
    PostProvider postProvider = Provider.of<PostProvider>(context,listen:false); // get post
     return EasyRefresh(
-                      onRefresh: postProvider.getTodayPostsData,
+                      onRefresh: postProvider.getTodayPostsDataTesting,
                       onLoad: postProvider.hasMore ? postProvider.LoadMoreTodayPostsData : null,
                       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),

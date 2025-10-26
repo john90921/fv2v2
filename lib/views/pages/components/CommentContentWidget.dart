@@ -3,6 +3,7 @@ import 'package:fv2/models/Comment.dart';
 import 'package:fv2/models/Reply.dart';
 import 'package:fv2/providers/CommentProvider.dart';
 import 'package:fv2/providers/ReplyProvider.dart';
+import 'package:fv2/providers/UserProvider.dart';
 import 'package:fv2/views/pages/components/ConfirmDialog.dart';
 import 'package:fv2/views/pages/components/ReplyWidget.dart';
 import 'package:fv2/views/pages/components/ShowReplyBottomSheet.dart';
@@ -26,6 +27,8 @@ class CommentContentWidget extends StatelessWidget {
       context,
       listen: false,
     );
+    final user_id = Provider.of<Userprovider>(context, listen: false).getUser?.id;
+
     return Selector<CommentProvider, Comment?>(
       selector: (_, commentProvdier) => commentProvdier.getComemnt(id),
       builder: (_, comment, _) {
@@ -46,12 +49,14 @@ class CommentContentWidget extends StatelessWidget {
               /// Header with avatar + username + time
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                // leading: CircleAvatar(
-                //   backgroundImage: NetworkImage(comment.owner_image),
-                // ),
+                leading: comment.owner_image != null && comment.owner_image != '' ? CircleAvatar(
+                  backgroundImage: NetworkImage(comment.owner_image!),
+                ): const CircleAvatar(
+                  backgroundImage: AssetImage('assets/profile1.jpeg'),
+                ),
                 title: Text(comment.owner_name ?? ''),
                 subtitle: Text(comment.getTimeAgo()),
-                trailing: IconButton(
+                trailing:user_id == comment.owner_id? IconButton(
                   icon: Icon(Icons.more_horiz),
                   onPressed: () {
                     showOptionsSheet(
@@ -134,7 +139,7 @@ class CommentContentWidget extends StatelessWidget {
                     //   },
                     // );
                   },
-                ),
+                ):null
               ),
 
               /// Comment text

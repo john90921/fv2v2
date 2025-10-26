@@ -17,21 +17,13 @@ class _PostListWidgetState extends State<PostListWidget> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // wait for widgets to be built then fetch
-      try {
-         final receivePort = ReceivePort();
-  Provider.of<PostProvider>(context, listen: false).getTodayPostsData();
-} on Exception catch (e) {
-  ScaffoldMessenger.of(context)
-      .showSnackBar(SnackBar(content: Text('Error fetching posts: $e')));
-}
-          
-  });
   }
 
   @override
   Widget build(BuildContext context) {
+    print("🔁 PostListWidget rebuilt");
+      PostProvider postProvider = Provider.of<PostProvider>(context, listen: false);
+
     return Container(
       padding: const EdgeInsets.all(16.0),
       width: double.infinity,
@@ -45,13 +37,17 @@ class _PostListWidgetState extends State<PostListWidget> {
           const SizedBox(height: 16.0),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child:Selector<PostProvider, List<int>>(
-              selector: (_, provider) => provider.postList.map((p) => p.id).toList(),
-              builder: (context, postIdList, child) {
-                PostProvider postProvider = Provider.of<PostProvider>(context, listen: false);
+            child:Selector<PostProvider, List<dynamic>>(
+              selector: (_, provider) => [
+                provider.postList.map((p) => p.id).toList(),
+                provider.isLoading            
+              ],
+              builder: (context, data, child) {
+                final postIdList = data[0] as List<dynamic>;
                 if (postProvider.isLoading) {
                   return const Center(child: CircularProgressIndicator());
-                } else {
+                } 
+                else {
                   if (postIdList.isEmpty) {
                     return const Text("No posts found");
                   }

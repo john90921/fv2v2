@@ -40,7 +40,7 @@ class DioHandler {
         }
         // Attach Authorization header if token exists
         if (token != null) {
-          options.headers['Authorization'] = 'Bearer 79|tFzOBV3q7v2gC1S7fPu9NqLDqGxY8cWgEoMb31SG8b2bd5f7';
+          options.headers['Authorization'] = 'Bearer $token';
         }
         // options.headers['Authorization'] = 'Bearer 1|lPTgCt5iF6fBpSRk0pxa48nTZh48IZi4bFodWijS97ee52b7';
 

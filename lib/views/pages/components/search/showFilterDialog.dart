@@ -1,72 +1,99 @@
 import 'package:flutter/material.dart';
-import 'package:date_picker_plus/date_picker_plus.dart';
-Future<Map<String, dynamic>?> showFilterDialog({
+import 'package:fv2/models/Filter.dart';
+import 'package:fv2/providers/PostProvider.dart';
+import 'package:provider/provider.dart';
+
+Future<Filter?> showFilterDialog({
   required BuildContext context,
+
 }) {
-  String? Date;
-  String? SortBy;
-  return showDialog(
+  
+  Filter? currentFilter = Provider.of<PostProvider>(context,listen:false).currentFilter;
+  String selectedDate = currentFilter?.date ?? "today";
+  String selectedSortBy = currentFilter?.sortBy ?? "popular";
+
+  return showDialog<Filter>(
     context: context,
     builder: (context) {
-
-      return AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: const Text("Select Filter"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-           Text("Date Range"),
-           SizedBox(height: 10),
-            DropdownButton<String>(
-              isExpanded: true,
-              value: "Today",
-              items: <String>["Today",'Week', 'Month','Year'].map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (newValue) {
-                // Handle sort by change
-              },
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            title: const Text("Select Filter"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text("Date Range"),
+                const SizedBox(height: 10),
+                DropdownButton<String>(
+                  isExpanded: true,
+                  value: selectedDate,
+                  items: <String>["today", "week", "month", "year"]
+                      .map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (newValue) {
+                    setState(() {
+                      selectedDate = newValue!;
+                    });
+                  },
+                ),
+                const SizedBox(height: 20),
+                const Text("Sort By"),
+                const SizedBox(height: 10),
+                DropdownButton<String>(
+                  isExpanded: true,
+                  value: selectedSortBy,
+                  items: <String>['latest', 'popular']
+                      .map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (newValue) {
+                    setState(() {
+                      selectedSortBy = newValue!;
+                    });
+                  },
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(
+                          Filter(
+                            date: selectedDate.toLowerCase(),
+                            sortBy: selectedSortBy.toLowerCase(),
+                          ),
+                        );
+                      },
+                      child: const Text("Apply"),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(Filter.initial());
+                      },
+                      child: const Text("Reset"),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text("Cancel"),
+                    ),
+                  ],
+                ),
+              ],
             ),
-            SizedBox(height: 20),
-            Text("Sort By"),
-            SizedBox(height: 10),
-            DropdownButton<String>(
-              isExpanded: true,
-              value: "latest",
-              items: <String>['latest', 'Popularity'].map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (newValue) {
-                // Handle sort by change
-              },
-            )
-            ,
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text("Apply"),
-            ),
-            SizedBox(width: 10),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text("Cancel"),
-            ),
-          ],)
-          ],
-        ),
+          );
+        },
       );
     },
   );

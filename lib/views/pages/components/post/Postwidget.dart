@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fv2/models/Post.dart';
 import 'package:fv2/providers/PostProvider.dart';
+import 'package:fv2/providers/UserProvider.dart';
 import 'package:fv2/views/pages/PostFormPage.dart';
 import 'package:fv2/views/pages/components/ConfirmDialog.dart';
 import 'package:fv2/views/pages/components/showOptionsSheet.dart';
@@ -27,18 +28,19 @@ class _PostwidgetState extends State<Postwidget> {
     super.initState();
   }
 
-  @override
-  void deactivate() {
-      final postProvider = Provider.of<PostProvider>(context, listen: false);
-  postProvider.initialSelectedPost();
-    // TODO: implement dispose
-    super.deactivate();
-  }
+  // @override
+  // void deactivate() {
+  // final postProvider = Provider.of<PostProvider>(context, listen: false);
+
+  //   // TODO: implement dispose
+  //   super.deactivate();
+  // }
   @override
   Widget build(BuildContext context){
 
   
     final postProvider = Provider.of<PostProvider>(context, listen: false);
+    final user_id = Provider.of<Userprovider>(context, listen: false).getUser.id;
 
     // if(postProvider.getPost(widget.post_id) == null){ // if the post cannot found in post list 
     //   return FutureBuilder(
@@ -79,7 +81,7 @@ class _PostwidgetState extends State<Postwidget> {
                 ),
                 title: Text(post.ownerName), // User name
                 subtitle: Text(post.getTimeAgo()), // Post time
-                trailing: IconButton(
+                trailing: user_id == post.owner_id ? IconButton(
                   icon: Icon(Icons.more_horiz),
                   onPressed: () {
                     {
@@ -105,7 +107,7 @@ class _PostwidgetState extends State<Postwidget> {
                       }
                     }
                   },
-                ), // More options icon
+                ):null, // More options icon
               ),
                Padding(
                 padding: const EdgeInsets.all(20.0),

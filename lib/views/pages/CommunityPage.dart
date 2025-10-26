@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fv2/models/Filter.dart';
 import 'package:fv2/providers/PostProvider.dart';
 import 'package:fv2/views/pages/components/post/PostListWidget.dart';
 import 'package:fv2/views/pages/components/search/showFilterDialog.dart';
@@ -12,20 +13,32 @@ class CommunityPage extends StatefulWidget {
 }
 
 class _CommunityPageState extends State<CommunityPage> {
-  final onPressed = () {
-    print("Camera Clicked");
-  };
+ final TextEditingController searchController = TextEditingController();
+
   @override
   void initState() {
-    // TODO: implement initState
-    super.initState();
+ 
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+      // wait for widgets to be built then fetch
+      try {
+  Provider.of<PostProvider>(context, listen: false).getTodayPostsDataTesting();
+} on Exception catch (e) {
+  ScaffoldMessenger.of(context)
+      .showSnackBar(SnackBar(content: Text('Error fetching posts: $e')));
+}
+          
+  });
+  super.initState();
+
   }
+  
 
   @override
   Widget build(BuildContext context) {
-   PostProvider postProvider = Provider.of<PostProvider>(context,listen:false); // get post
+    print("🔁 CommunityPage rebuilt");
+   PostProvider postProvider = Provider.of<PostProvider>(context,listen:false); // get post // reset filter and selected post
     return EasyRefresh(
-                      onRefresh: postProvider.getTodayPostsData,
+                      onRefresh: postProvider.getTodayPostsDataTesting,
                       onLoad: postProvider.hasMore ? postProvider.LoadMoreTodayPostsData : null,
                       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -38,11 +51,24 @@ class _CommunityPageState extends State<CommunityPage> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(8.0),
             ),
-            child: Row(children: [
+            child: Row(
+              children: [
               Expanded(
                 child: ListTile(
-                  leading: Icon(Icons.search, color: Colors.blueGrey),
+                  leading: IconButton(
+                    onPressed: (){
+                    // postProvider.applySearch(searchController.text);
+                    if(searchController.text != ""){
+                      postProvider.currentFilter?.searhInput = searchController.text;
+                      postProvider.getTodayPostsDataTesting();
+                    }  
+                  }, icon:Icon(Icons.search, color: Colors.blueGrey)),
                   title: TextField(
+                    onChanged: (value) => {
+                      if(value.isEmpty){postProvider.applySearch("")}
+                    },
+                    onSubmitted: (value) => postProvider.applySearch(value),
+                    controller: searchController,
                     decoration: InputDecoration(
                       hintText: 'Search Community',
                       border: InputBorder.none,
@@ -50,9 +76,15 @@ class _CommunityPageState extends State<CommunityPage> {
                   ),
                 ),
               ),
-            IconButton(onPressed: ()=>{
-                showFilterDialog(context:context)
-            }, icon: Icon(Icons.tune, color: Colors.blueGrey))
+              IconButton(onPressed: () async {
+                Filter? filter = await showFilterDialog(context: context);
+                if (filter != null) {
+                  postProvider.currentFilter?.setDate(filter.date!);
+                  postProvider.currentFilter?.setSortBy(filter.sortBy!);
+                  // selectedFilter = postProvider.currentFilter;
+                  postProvider.getTodayPostsDataTesting();
+                }
+              }, icon: Icon(Icons.tune, color: Colors.blueGrey))
             ],),
             ),
         

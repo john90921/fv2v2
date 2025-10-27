@@ -1,7 +1,6 @@
 # fv2
 
-A new Flutter project.
-
+frontend v2 Application 
 ## Getting Started
 
 This project is a starting point for a Flutter application.

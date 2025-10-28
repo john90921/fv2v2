@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:fv2/dio/DetectDioHandler.dart';
 
 class PhotoConfirm extends StatelessWidget {
   const PhotoConfirm({super.key, required this.newImage});
@@ -40,9 +42,26 @@ class PhotoConfirm extends StatelessWidget {
                 backgroundColor: Colors.blueAccent,
                 minimumSize: const Size(200, 45),
               ),
-              onPressed: () {
+              onPressed: () async{
                 // Handle confirm action
-                Navigator.pop(context, true);
+                if (newImage == null) return;
+                final _dio =  DetectDioHandler.instance.dio;
+
+                try{
+                   FormData formData;
+
+               formData = FormData.fromMap({
+                 'image' : await MultipartFile.fromFile(newImage!.path, filename: newImage!.path.split('/').last),
+                });
+                  final response = await _dio.post('/predict', data: formData);
+                  final data = response.data;
+                  print("API POST Response: $data");
+                }
+                catch(e){
+                  print("Error during API POST request: $e");
+                }
+
+                // Navigator.pop(context, true);
               },
               child: const Text('Confirm'),
             ),

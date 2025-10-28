@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:fv2/providers/CommentProvider.dart';
 import 'package:fv2/providers/NotificationProvider.dart';
+import 'package:fv2/providers/PlantProvider.dart';
 import 'package:fv2/providers/PostProvider.dart';
 import 'package:fv2/providers/UserProvider.dart';
 import 'package:fv2/token/TokenManager.dart';
 import 'package:fv2/views/WidgetTree.dart';
 import 'package:fv2/views/pages/CommunityPage.dart';
+import 'package:fv2/views/pages/Disease/PlantDisease.dart';
+import 'package:fv2/views/pages/RequestResetPage.dart';
 import 'package:fv2/views/pages/LoginPageTesting.dart';
 import 'package:fv2/views/pages/NotificationPage.dart';
 import 'package:fv2/views/pages/Disease/PhotoGuide.dart';
@@ -13,6 +16,7 @@ import 'package:fv2/views/pages/PostFormPage.dart';
 import 'package:fv2/views/pages/HomePage.dart';
 import 'package:fv2/views/pages/LoginPage.dart';
 import 'package:fv2/views/pages/PostPage.dart';
+import 'package:fv2/views/pages/RegisterPage.dart';
 import 'package:fv2/views/pages/postHistory/PostHistoryPage.dart';
 import 'package:fv2/views/pages/profile/ProfilePage.dart';
 import 'package:fv2/views/pages/WebSocketTestPage.dart';
@@ -41,7 +45,7 @@ void main() async{
             commentProvider!..setPostProvider(postProvider),
           )
       ],
-      child: MyApp(firstStartRoute : firstStartRoute),
+      child: MyApp(firstStartRoute : firstStartRoute ),
     ),
     );
 }
@@ -77,9 +81,10 @@ class MyApp extends StatelessWidget {
       ),
         initialRoute: firstStartRoute,
         routes: {
+          '/photoGuide': (context) => const Photoguide(),
           '/postPage':(context) => LoaderOverlay(child: PostPage()),
           '/postFormPage':(context) =>  LoaderOverlay(child: PostFormPage()),
-          '/login': (context) => const LoginPage(),
+          '/login': (context) => const LoginPageTesting(),
           '/NotificationPage': (context) => LoaderOverlay(child: NotificationPage()),
           '/postHistory': (context) => LoaderOverlay(child: PostHistoryPage()),
     //       '/home': (context) =>  ProfilePage(
@@ -96,8 +101,14 @@ class MyApp extends StatelessWidget {
       //   create: (_) => PostProvider(),
       //   child: LoaderOverlay(child:  CommunityPage()),
       // ),
+          '/plantDisease': (context) => ChangeNotifierProvider(
+          create: (_) => PlantProvider(),
+          child: LoaderOverlay(child:  PlantDisease()),
+          ),
           '/home': (context) => LoaderOverlay(child:  Homepage()),
           '/communityPage':(context) => LoaderOverlay(child:  CommunityPage()),
+          '/registerPage':(context) => LoaderOverlay(child:  RegisterPage()),
+          '/requestResetPage' : (context) => LoaderOverlay(child:  RequestResetPage()),
         },
           // home: WidgetTree(body: const Homepage()),
       ),

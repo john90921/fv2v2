@@ -6,8 +6,9 @@ import 'package:fv2/api/ApiHelper.dart';
 
 
 class OtpScreen extends StatefulWidget {
-  const OtpScreen({super.key, required this.gmail});
+  const OtpScreen({super.key, required this.gmail, required this.isForResetPassword});
   final String gmail;
+  final bool isForResetPassword;
   @override
   State<OtpScreen> createState() => _OtpScreenState();
 }
@@ -158,14 +159,26 @@ class _OtpScreenState extends State<OtpScreen> {
                           content: Text("Verification successful"),
                         ),
                       );
+                  
                     WidgetsBinding.instance.addPostFrameCallback((_) {
-                      Navigator.pushReplacement(
+                      if(!mounted) return;
+                      if(widget.isForResetPassword)
+                      {
+                        Navigator.pushReplacement(
                         //direct to reset password
                         context,
                         MaterialPageRoute(
                           builder: (context) => ResetPasswordPage(gmail: widget.gmail),
                         ),
                       );
+                      }
+                      else{
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          '/login',
+                          (route) => false,
+                        );
+                      }
                     });
                   }else {
                     ScaffoldMessenger.of(context)

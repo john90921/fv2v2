@@ -43,6 +43,7 @@ class PostProvider extends ChangeNotifier {
   }
 
   void initial() {
+    hasMore= true;
     _currentFilter = Filter.initial(); // reset filter to initial values
     _selectedPost = null; //initialSelectedPost  // for certain posr page
   }
@@ -60,20 +61,20 @@ class PostProvider extends ChangeNotifier {
       // _selectedPost = updatedPost;
       notifyListeners();
     } else {
-      final index = postList.indexWhere((p) => p.id == postId);
+      final index = _postList.indexWhere((p) => p.id == postId);
       // get the index of the post that has the postID from the postList
 
       if (index == -1) {
         return "Post not found";
       }
-      postList[index] = postList[index].copyWith(
-        isLiked: !postList[index].isLiked,
-        likesCount: postList[index].isLiked
-            ? postList[index].likesCount - 1
-            : postList[index].likesCount + 1,
+      _postList[index] = _postList[index].copyWith(
+        isLiked: !_postList[index].isLiked,
+        likesCount: _postList[index].isLiked
+            ? _postList[index].likesCount - 1
+            : _postList[index].likesCount + 1,
       );
       notifyListeners();
-      print("post liked: ${postList[index].isLiked}");
+      print("post liked: ${_postList[index].isLiked}");
     }
 
     try {

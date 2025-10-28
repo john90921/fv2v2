@@ -187,7 +187,7 @@ class LoginPage extends StatelessWidget {
                 if (context.mounted) {
                   Navigator.of(context).pushReplacement(
                     PageRouteBuilder(
-                      pageBuilder: (_, __, ___) => OtpScreen(gmail: gmail),
+                      pageBuilder: (_, __, ___) => OtpScreen(gmail: gmail, isForResetPassword: true),
                       transitionDuration: Duration.zero,
                       reverseTransitionDuration: Duration.zero,
                     ),

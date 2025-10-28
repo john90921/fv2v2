@@ -98,7 +98,7 @@ class _PostPageState extends State<PostPage> {
               Divider(),
               Column(
                 children: [
-                  Container(
+                Container(
                     // Comment input field
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),

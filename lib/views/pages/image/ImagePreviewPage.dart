@@ -19,7 +19,11 @@ class ImagePreviewPage extends StatelessWidget {
           child: Hero(
             tag: imageUrl,
             child: PhotoView(
-              imageProvider: NetworkImage(imageUrl),
+              errorBuilder: (context, error, stackTrace) => const Center(child: Icon(Icons.error)),
+              imageProvider: NetworkImage(
+                imageUrl
+                
+                ),
               backgroundDecoration: const BoxDecoration(color: Colors.black),
             ),
           ),

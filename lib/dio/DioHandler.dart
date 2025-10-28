@@ -24,8 +24,11 @@ class DioHandler {
   DioHandler._internal()
       : dio = Dio(BaseOptions(
           baseUrl: "http://192.168.56.1:8000/api/v1", // change to your API
-          connectTimeout: const Duration(seconds: 5),
-          receiveTimeout: const Duration(seconds: 5),
+          connectTimeout: const Duration(seconds: 10),
+          receiveTimeout: const Duration(seconds: 10),
+          headers: {
+            "Accept": "application/json",
+          },
         )) {
     // Add interceptor to attach token
     dio.interceptors.add(
@@ -50,17 +53,17 @@ class DioHandler {
       onError: (err, handler) {
         if (err.response?.statusCode == 401) {
           // Token invalid or expired
-          TokenManager.instance.clearAccessToken();
-            ScaffoldMessenger.of(
-            navigatorKey.currentState!.context,
-          ).showSnackBar(
-            const SnackBar(content: Text('Session expired. Please log in again.')),
-          );
-          // Redirect to login page
-           navigatorKey.currentState?.pushNamedAndRemoveUntil(
-          '/login',
-          (route) => false, // removes all previous routes
-        );
+        //   TokenManager.instance.clearAccessToken();
+        //     ScaffoldMessenger.of(
+        //     navigatorKey.currentState!.context,
+        //   ).showSnackBar(
+        //     const SnackBar(content: Text('Session expired. Please log in again.')),
+        //   );
+        //   // Redirect to login page
+        //    navigatorKey.currentState?.pushNamedAndRemoveUntil(
+        //   '/login',
+        //   (route) => false, // removes all previous routes
+        // );
         }
         return handler.next(err);
       },

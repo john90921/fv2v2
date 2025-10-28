@@ -52,12 +52,11 @@ void dispose() {
   void login(Map<String, dynamic> data){
     setUser(parseUser(data));
   }
-
   Future<bool> logout(BuildContext context) async {  
     ApiResult result = await Apihelper.post(ApiRequest(path: "/logout"));
-    if (result.status != true) {
-      return false;
-    }
+    // if (result.status != true) {
+    //   return false;
+    // }
 
     await TokenManager.instance.clearAccessToken();
     _loginUser = User.initial();

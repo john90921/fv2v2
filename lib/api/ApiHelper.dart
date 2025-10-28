@@ -52,7 +52,6 @@ class Apihelper {
       // } else {
       //   message = 'Error ${status}: ${data['message'] ?? 'Unknown error'}';
       // }
-
       //   }
        if (e.response != null && e.response?.statusCode == 422) {
         final errors = e.response?.data['errors'];

@@ -45,44 +45,48 @@ class _PhotoguideState extends State<Photoguide> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Photo Guide'), centerTitle: true),
-      body:  Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ListTile(
-              leading: Text("1"),
-              title: Text('Position the Plant'),
-              subtitle: Text(' Center the diseased parts of a leaf'),
-            ),
-            ListTile(
-              leading: Text("2"),
-              title: Text('Ensure Good Lighting'),
-              subtitle: Text(
-                'Avoid shadows and use natural light when possible',
+      body:  SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child:
+               Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ListTile(
+                    leading: Text("1"),
+                    title: Text('Position the Plant'),
+                    subtitle: Text(' Center the diseased parts of a leaf'),
+                  ),
+                  ListTile(
+                    leading: Text("2"),
+                    title: Text('Ensure Good Lighting'),
+                    subtitle: Text(
+                      'Avoid shadows and use natural light when possible',
+                    ),
+                  ),
+                  ListTile(
+                    leading: Text("3"),
+                    title: Text("Keep Steady"),
+                    subtitle: Text('Hold your phone still to capture a clear image'),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: TextButton.icon(
+                                        style: TextButton.styleFrom(
+                                          backgroundColor: Color(0xFFE5E7EB),
+                                        ),
+                                        onPressed: () =>
+                                            pickImage(ImageSource.camera, context),
+                                        icon: const Icon(Icons.camera_alt),
+                                        label: const Text("Camera"),
+                                      ),
+                  ),
+                ],
               ),
             ),
-            ListTile(
-              leading: Text("3"),
-              title: Text("Keep Steady"),
-              subtitle: Text('Hold your phone still to capture a clear image'),
-            ),
-            Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Expanded(
-                child: TextButton.icon(
-                                    style: TextButton.styleFrom(
-                                      backgroundColor: Color(0xFFE5E7EB),
-                                    ),
-                                    onPressed: () =>
-                                        pickImage(ImageSource.camera, context),
-                                    icon: const Icon(Icons.camera_alt),
-                                    label: const Text("Camera"),
-                                  ),
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        
+      
     );
   }
 }

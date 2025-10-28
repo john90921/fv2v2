@@ -11,7 +11,7 @@ import 'package:fv2/views/pages/HomePage.dart';
 import 'package:fv2/views/pages/OtpScreen.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
-
+//sorvictor90@gmail.com
 class LoginPageTesting extends StatefulWidget {
   const LoginPageTesting({super.key});
 
@@ -23,7 +23,8 @@ class _LoginPageTestingState extends State<LoginPageTesting> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  Future<String?> _authUser() async {
+  Future<String?> _authUser(BuildContext context) async {
+
      if (_formKey.currentState!.validate()) {
     try {
       ApiResult result = await Apihelper.post(
@@ -35,7 +36,8 @@ class _LoginPageTestingState extends State<LoginPageTesting> {
           },
         ),
       );
-
+   
+        print("result: ${result.message}");
       if (result.status == true) {
         final token = result.data["token"];
         if (token != null) {
@@ -51,20 +53,44 @@ class _LoginPageTestingState extends State<LoginPageTesting> {
         ).showSnackBar(SnackBar(content: Text("login successfull")));
 
         if (!mounted) return null;
-        Navigator.pushReplacement(
+        Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const WidgetTree()),
+           (Route<dynamic> route) => false,
         );
       } else {
+        if(result.message =="unverified"){
+          ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Account unverified, redirecting to OTP screen")),
+        );
+          String gmail = _emailController.text;
+          if (context.mounted) {
+            Navigator.of(context).push(
+              PageRouteBuilder(
+                pageBuilder: (_, __, ___) => OtpScreen(gmail: gmail, isForResetPassword: false),
+                transitionDuration: Duration.zero,
+                reverseTransitionDuration: Duration.zero,
+              ),
+            );
+          }
+          return null;
+        }
+
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Invalid login: ${result.message}")),
+          SnackBar(content: Text("${result.message}")),
         );
       }
     } catch (e) {
+      print("login error: $e");
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text("error")));
+      ).showSnackBar(SnackBar(content: Text("Login error: $e")));
+
+
     }
+    finally{
+    }
+
      }
   }
 
@@ -141,11 +167,7 @@ class _LoginPageTestingState extends State<LoginPageTesting> {
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Forgot password clicked'),
-                          ),
-                        );
+                        Navigator.pushNamed(context, '/requestResetPage');
                       },
                       child: const Text(
                         "Forgot Password?",
@@ -160,7 +182,9 @@ class _LoginPageTestingState extends State<LoginPageTesting> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _authUser,
+                      onPressed: (){
+                        _authUser(context);
+                      },
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
@@ -177,9 +201,7 @@ class _LoginPageTestingState extends State<LoginPageTesting> {
                       const Text("Don't have an account?"),
                       TextButton(
                         onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Register clicked')),
-                          );
+                          Navigator.pushNamed(context, '/registerPage');
                         },
                         child: const Text(
                           "Register",

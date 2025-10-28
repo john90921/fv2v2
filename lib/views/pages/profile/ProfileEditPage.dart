@@ -94,6 +94,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                     ),
                     padding: const EdgeInsets.all(16.0),
                     child: SizedBox(
+         
                       width: double.infinity,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -252,14 +253,18 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
   }
   FormImage(){
     if(oldImagePath != null){ // check if old image of the post is not null then show image
-       return  CachedNetworkImage(
-                      imageUrl: oldImagePath!,
-                      fit: BoxFit.fill,
-                      placeholder: (context, url) =>
-                          const Center(child: CircularProgressIndicator()),
-                      errorWidget: (context, url, error) =>
-                          const Icon(Icons.broken_image),
-                    );
+       return  SizedBox(
+                      width: 200,
+                      height: 200,
+         child: CachedNetworkImage(
+                        imageUrl: oldImagePath!,
+                        fit: BoxFit.fill,
+                        placeholder: (context, url) =>
+                            const Center(child: CircularProgressIndicator()),
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.broken_image),
+                      ),
+       );
       // show image from url
       // return Image.network(
       //   widget.post!.image!,

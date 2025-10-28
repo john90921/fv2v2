@@ -256,7 +256,16 @@ class PostProvider extends ChangeNotifier {
       if (result.status == true) {
         success = true;
         // optionally remove the deleted post from list
-        postList.removeWhere((post) => post.id == id);
+        if (_selectedPost != null && _selectedPost!.id == id) {
+          _selectedPost = null;
+        }
+
+          final index = postList.indexWhere((p) => p.id == id);
+          if (index != -1) {
+            postList.removeAt(index);
+          }
+        
+
 
         context.loaderOverlay.hide();
         notifyListeners();

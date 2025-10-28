@@ -46,7 +46,8 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                user.profile_Image != "" && user.profile_Image != null ?  CircleAvatar(
+                user.profile_Image != "" && user.profile_Image != null ? 
+                 CircleAvatar(
                   radius: 60,
                   backgroundImage: NetworkImage(user.profile_Image!),
                 ) : const CircleAvatar(

@@ -30,10 +30,6 @@ class _PostListWidgetState extends State<PostListWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "Today Community Feed",
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
           const SizedBox(height: 16.0),
           Padding(
             padding: const EdgeInsets.all(8.0),

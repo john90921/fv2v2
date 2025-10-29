@@ -42,6 +42,17 @@ class PostProvider extends ChangeNotifier {
     _postList = value;
   }
 
+  void initialHomePage(){
+     hasMore= true;
+    _currentFilter = Filter(
+      userId: null,
+      date: "week",
+      sortBy: "popular",
+      searhInput: null,
+    ); // reset filter to initial values
+    _selectedPost = null; 
+  }
+
   void initial() {
     hasMore= true;
     _currentFilter = Filter.initial(); // reset filter to initial values

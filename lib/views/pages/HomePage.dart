@@ -23,7 +23,7 @@ class _HomepageState extends State<Homepage> {
   @override
   void initState() {
   WidgetsBinding.instance.addPostFrameCallback((_) {
-    Provider.of<PostProvider>(context, listen: false).initial();
+    Provider.of<PostProvider>(context, listen: false).initialHomePage();
   });    
   super.initState();
   }
@@ -136,7 +136,12 @@ context.loaderOverlay.show();
           //   ],),
           // ),
           SizedBox(height: 20),
-      
+          Text(
+            "Week Community Feed",
+            textAlign: TextAlign.left,
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+
           PostListWidget(),
           ],
         ),

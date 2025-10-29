@@ -11,7 +11,7 @@ class Filter {
   String? searhInput;
   Filter.initial({
     this.userId = null,
-    this.date = "today",
+    this.date = "month",
     this.sortBy="popular",
     this.searhInput = null,
   });
@@ -23,8 +23,8 @@ class Filter {
   });
   Filter({
   this.userId,
-   required this.date,
-   required this.sortBy,
+  required this.date,
+  required this.sortBy,
   this.searhInput,
   });
 

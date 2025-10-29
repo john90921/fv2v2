@@ -19,11 +19,11 @@ import 'package:fv2/main.dart';
 import 'package:fv2/token/TokenManager.dart';
 class DioHandler {
   final Dio dio;
-  
+  // https://backend-production-1e7d.up.railway.app/api/v1
   
   DioHandler._internal()
       : dio = Dio(BaseOptions(
-          baseUrl: "https://backend-production-1e7d.up.railway.app/api/v1", // change to your API
+          baseUrl: "http://192.168.56.1:8000/api/v1", // change to your API
           connectTimeout: const Duration(seconds: 10),
           receiveTimeout: const Duration(seconds: 10),
           headers: {

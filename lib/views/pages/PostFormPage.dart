@@ -13,7 +13,8 @@ import 'package:provider/provider.dart';
 
 class PostFormPage extends StatefulWidget {
   final Post? post;
-  const PostFormPage({super.key, this.post});
+  final File? imageFile;
+  const PostFormPage({super.key, this.post, this.imageFile});
   
   @override
   State<PostFormPage> createState() => _PostFormPageState();
@@ -42,6 +43,9 @@ class _PostFormPageState extends State<PostFormPage> {
       }
       oldImagePath = widget.post!.image;
     }
+    if(widget.imageFile != null) {
+      newimage = widget.imageFile;
+    }
     super.initState();
   }
 
@@ -55,10 +59,9 @@ class _PostFormPageState extends State<PostFormPage> {
   Future pickImage(ImageSource source, BuildContext context) async {
     // Use image_picker package to pick image from gallery or camera
     try {
-
       final image = await ImagePicker().pickImage(source: source);
       if (image == null) return;
-      final imageTemporary = File(image!.path);
+      final imageTemporary = File(image.path);
       setState(() {
         oldImagePath = null;
         this.newimage = imageTemporary;

@@ -5,7 +5,9 @@ import 'package:fv2/providers/UserProvider.dart';
 import 'package:fv2/views/pages/PostFormPage.dart';
 import 'package:fv2/views/pages/components/ConfirmDialog.dart';
 import 'package:fv2/views/pages/components/showOptionsSheet.dart';
+import 'package:fv2/views/pages/components/showReportsOptionSheet.dart';
 import 'package:fv2/views/pages/image/ImagePreviewPage.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -88,9 +90,8 @@ class _PostwidgetState extends State<Postwidget> {
                       try {
                         showOptionsSheet(
                           context: context,
-                          onDelete: () =>postProvider.deletePost(post.id, context)
-
-                              ,
+                          onDelete: () => postProvider.deletePost(post.id, context),
+          
                           onEdit: () async{
   
                             await Navigator.push(
@@ -107,7 +108,17 @@ class _PostwidgetState extends State<Postwidget> {
                       }
                     }
                   },
-                ):null, // More options icon
+                ):IconButton(onPressed: (){
+                    try {
+                        showReportsOptionSheet(
+                          context: context,
+                          onDelete: () => postProvider.reportPost(post.id, context),
+                          isFromPostPage: widget.isfromPostPage,
+                        );
+                      } catch (e) {
+                        print("error $e");
+                      }
+                }, icon: Icon(Icons.more_horiz)), // More options icon
               ),
                Padding(
                 padding: const EdgeInsets.all(20.0),

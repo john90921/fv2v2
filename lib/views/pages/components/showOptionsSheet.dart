@@ -3,12 +3,13 @@ import 'package:fv2/models/Post.dart';
 import 'package:fv2/providers/PostProvider.dart';
 import 'package:fv2/views/pages/components/ConfirmDialog.dart';
 import 'package:fv2/views/pages/components/ShowReplyBottomSheet.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 
 Future<void> showOptionsSheet({
   required BuildContext context,
   // required int id,
   required Future Function() onDelete,
-  Future Function()? onEdit, 
+  Future Function()? onEdit,
   bool? isPost,
   required bool isFromPostPage,
   // required Future Function() onEdit
@@ -32,7 +33,6 @@ Future<void> showOptionsSheet({
                   icon: const Icon(Icons.close), //close the setting
                   onPressed: () {
                     Navigator.pop(context);
-                 
                   },
                 ),
               ),
@@ -52,12 +52,11 @@ Future<void> showOptionsSheet({
                 subtitle: const Text('Delete your post'),
                 onTap: () async {
                   final bool? confirm = await confirmDialog(context);
+
                   if (confirm == false) {
                     return;
                   }
-
-                  String message =
-                      await onDelete(); // Call the passed delete function
+                  String message = await onDelete();
                   Navigator.pop(context);
 
                   if (isFromPostPage) {

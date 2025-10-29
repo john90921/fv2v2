@@ -1,6 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fv2/providers/PostProvider.dart';
+import 'package:fv2/views/pages/Disease/PhotoScanConfirm.dart';
 import 'package:fv2/views/pages/components/post/PostListWidget.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 class Homepage extends StatefulWidget {
@@ -22,6 +28,25 @@ class _HomepageState extends State<Homepage> {
   super.initState();
   }
 
+  Future pickImage(ImageSource source, BuildContext context) async {
+    // Use image_picker package to pick image from gallery or camera
+    try {
+context.loaderOverlay.show();
+      final image = await ImagePicker().pickImage(source: source);
+      context.loaderOverlay.hide();
+      if (image == null) return;
+      final imageTemporary = File(image.path);
+     if(mounted){ Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PhotoScanConfirm(newImage: imageTemporary),
+        ),
+      );}
+   
+    } on PlatformException catch (e) {
+      print("Failed to pick image: $e");
+    }
+  }
   @override
   Widget build(BuildContext context) {
    PostProvider postProvider = Provider.of<PostProvider>(context,listen:false); // get post
@@ -49,6 +74,7 @@ class _HomepageState extends State<Homepage> {
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
+
                 ),
                 const SizedBox(height: 10),
                 const Text(
@@ -65,7 +91,8 @@ class _HomepageState extends State<Homepage> {
                           foregroundColor: Colors.blue, // icon & text color
                         ),
                         onPressed: () {
-                          // camera action
+                         if(mounted)
+                         { Navigator.pushNamed(context, '/photoGuide');}
                         },
                         icon: const Icon(Icons.camera_alt_outlined),
                         label: const Text("Camera"),
@@ -78,8 +105,8 @@ class _HomepageState extends State<Homepage> {
                           backgroundColor: Colors.white, // button bg
                           foregroundColor: Colors.blue, // icon & text color
                         ),
-                        onPressed: () {
-                          // camera action
+                        onPressed: () async{
+                         await pickImage(ImageSource.gallery,context);
                         },
                         icon: const Icon(Icons.image_outlined),
                         label: const Text("Gallery"),

@@ -89,10 +89,12 @@ class CommentProvider extends ChangeNotifier {
           _comments[index].likes_count -= 1;
         }
         notifyListeners();
-        return " error : ${result.message}";
+        print("error ${result.message}");
+        return " error";
       }
     } catch (e) {
-      return ("error $e");
+      print("error $e");
+      return ("error");
     }
   }
 
@@ -158,10 +160,12 @@ class CommentProvider extends ChangeNotifier {
         _postProvider.addCommentsCount(postId);
         return "success add comment";
       } else {
-        return ("error ${result.message}");
+        print("error ${result.message}");
+        return ("error");
       }
     } catch (e) {
-      return("error $e");
+      print("error $e");
+      return("error");
     } 
   }
 
@@ -180,10 +184,12 @@ class CommentProvider extends ChangeNotifier {
 
         return "Comment deleted successfully";
       } else {
-        return ("Delete failed: ${result.message}");
+        print("Delete failed ${result.message}");
+        return ("Delete failed");
       }
     } catch (e) {
-      return ("error $e");
+      print("error $e");
+      return ("error");
     }
     finally {
       context.loaderOverlay.hide();
@@ -209,10 +215,12 @@ class CommentProvider extends ChangeNotifier {
         notifyListeners();
         return null;
       } else {
-        return "error : ${result.message}";
+        print("error ${result.message}");
+        return "error ";
       }
     } catch (e) {
-      return ("error $e");
+      print("error $e");
+      return ("error");
     } finally {
       context.loaderOverlay.hide();
     }

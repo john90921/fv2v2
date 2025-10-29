@@ -45,7 +45,7 @@ void main() async{
             commentProvider!..setPostProvider(postProvider),
           )
       ],
-      child: MyApp(firstStartRoute : firstStartRoute ),
+      child: MyApp(firstStartRoute :  firstStartRoute),
     ),
     );
 }
@@ -101,10 +101,10 @@ class MyApp extends StatelessWidget {
       //   create: (_) => PostProvider(),
       //   child: LoaderOverlay(child:  CommunityPage()),
       // ),
-          '/plantDisease': (context) => ChangeNotifierProvider(
-          create: (_) => PlantProvider(),
-          child: LoaderOverlay(child:  PlantDisease()),
-          ),
+          // '/plantDisease': (context) => ChangeNotifierProvider(
+          // create: (_) => PlantProvider(),
+          // child: LoaderOverlay(child:  PlantDisease()),
+          // ),
           '/home': (context) => LoaderOverlay(child:  Homepage()),
           '/communityPage':(context) => LoaderOverlay(child:  CommunityPage()),
           '/registerPage':(context) => LoaderOverlay(child:  RegisterPage()),

@@ -23,9 +23,9 @@ class DetectDioHandler {
   
   DetectDioHandler._internal()
       : dio = Dio(BaseOptions(
-          baseUrl: "https://shunda012-plant-disease-fastapi.hf.space/predict", // change to your API
-          connectTimeout: const Duration(seconds: 5),
-          receiveTimeout: const Duration(seconds: 5),
+          baseUrl: "https://shunda012-plant-disease-fastapi.hf.space", // change to your API
+          connectTimeout: const Duration(seconds: 10),
+          receiveTimeout: const Duration(seconds: 10),
            headers: {
             "Accept": "application/json",
           },

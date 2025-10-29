@@ -297,7 +297,7 @@ class _WidgetTreeState extends State<WidgetTree> {
             icon: Icon(Icons.group),
             label: 'Community',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.school), label: 'School'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
         selectedItemColor: Colors.amber[800],
         onTap: (int index) {

@@ -49,10 +49,12 @@ class ReplyProvider extends ChangeNotifier {
           return ("error not a list");
         }
       } else {
-        return ("error ${result.message}");
+        print("error ${result.message}");
+        return ("error");
       }
     } catch (e) {
-      return ("error $e");
+      print("error $e");
+      return ("error");
     }
   }
 
@@ -77,10 +79,12 @@ class ReplyProvider extends ChangeNotifier {
           return ("error not a list");
         }
       } else {
-        return ("error ${result.message}");
+        print("error ${result.message}");
+        return ("error");
       }
     } catch (e) {
-      return ("error $e");
+      print("error $e");
+      return ("error");
     }
   }
 
@@ -113,10 +117,12 @@ class ReplyProvider extends ChangeNotifier {
 
         return ("success");
       } else {
-        return ("error ${result.message}");
+        print("error ${result.message}");
+        return ("error");
       }
     } catch (e) {
-      return ("error $e");
+      print("error $e");
+      return ("error");
     }finally {
       context.loaderOverlay.hide();
     }
@@ -152,10 +158,12 @@ class ReplyProvider extends ChangeNotifier {
           _replies[index].likes_count -= 1;
         }
         notifyListeners();
-        return " error : ${result.message}";
+        print("error ${result.message}");
+        return " error";
       }
     } catch (e) {
-      return ("error $e");
+      print("error $e");
+      return ("error");
     }
   }
 
@@ -176,10 +184,12 @@ class ReplyProvider extends ChangeNotifier {
 
         return "Rely deleted successfully";
       } else {
-        return ("Delete failed: ${result.message}");
+        print("Delete failed ${result.message}");
+        return ("Delete failed");
       }
     } catch (e) {
-      return ("error $e");
+      print("error $e");
+      return ("error");
     } finally {
       context.loaderOverlay.hide();
       notifyListeners();
@@ -206,10 +216,12 @@ class ReplyProvider extends ChangeNotifier {
     
         return "Reply updated successfully";
       } else {
-        return "Update failed: ${result.message}";
+        print("error ${result.message}");
+        return "Update failed";
       }
     } catch (e) {
-      return ("error $e");
+      print("error $e");
+      return ("error");
     }
     finally {
       context.loaderOverlay.hide();

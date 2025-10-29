@@ -82,10 +82,12 @@ class PostProvider extends ChangeNotifier {
         ApiRequest(path: "/likes", data: {"id": postId, "type": "post"}),
       );
       if (result.status != true) {
-        return " error : ${result.message}";
+
+        
+        return " error";
       }
     } catch (e) {
-      return ("error $e");
+      return ("error");
     }
   }
 
@@ -245,11 +247,43 @@ class PostProvider extends ChangeNotifier {
       print("error $e");
     }
   }
+ Future<String> reportPost(int id, BuildContext context) async {
+    // id post
+  // show the loader overlay
+    try {
+      context.loaderOverlay.show();
 
+      ApiResult result = await Apihelper.post(
+        ApiRequest(path: "report", data: {"id": id,"type":"post", "reason": "spam"}),
+      ); // delete the post
+
+        // optionally remove the deleted post from list
+        if (_selectedPost != null && _selectedPost!.id == id) {
+          _selectedPost = null;
+        }
+
+        final index = postList.indexWhere((p) => p.id == id);
+        if (index != -1) {
+            postList.removeAt(index);
+        }
+
+
+        
+        notifyListeners();
+        return "Post reported successfully";
+      
+    } catch (e) {
+      return ("error");
+    }
+    finally{
+      context.loaderOverlay.hide();
+    }
+    
+  }
   Future<String> deletePost(int id, BuildContext context) async {
     // id post
-    context.loaderOverlay.show(); // show the loader overlay
     try {
+      context.loaderOverlay.show();
       ApiResult result = await Apihelper.delete(
         ApiRequest(path: "/post/$id"),
       ); // delete the post
@@ -260,21 +294,21 @@ class PostProvider extends ChangeNotifier {
           _selectedPost = null;
         }
 
-          final index = postList.indexWhere((p) => p.id == id);
+        final index = postList.indexWhere((p) => p.id == id);
           if (index != -1) {
             postList.removeAt(index);
           }
-        
 
 
-        context.loaderOverlay.hide();
         notifyListeners();
         return "Post deleted successfully";
       } else {
-        return ("Delete failed: ${result.message}");
+        return ("Delete failed");
       }
     } catch (e) {
-      return ("error $e");
+      return ("error");
+    }finally{
+      context.loaderOverlay.hide();
     }
   }
 

@@ -80,7 +80,7 @@ class _LoginPageTestingState extends State<LoginPageTesting> {
 
 
     }
-      context.loaderOverlay.hide();
+    context.loaderOverlay.hide();
     if(statusLogin){
     if (!mounted) return null;
         Navigator.pushAndRemoveUntil(

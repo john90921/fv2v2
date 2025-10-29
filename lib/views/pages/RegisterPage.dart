@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fv2/api/ApiHelper.dart';
+import 'package:fv2/views/pages/LoginPage.dart';
+import 'package:fv2/views/pages/LoginPageTesting.dart';
 import 'package:fv2/views/pages/OtpScreen.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 
@@ -67,11 +69,18 @@ class _RegisterPageState extends State<RegisterPage> {
      if (status) {
   if (!mounted) return;
        // You can add navigation or API integration here
-       Navigator.pushReplacement(
+      //  Navigator.pushReplacement(
+      //    context,
+      //    MaterialPageRoute(
+      //      builder: (context) =>
+      //          OtpScreen(gmail: email, isForResetPassword: false),
+      //    ),
+      //  );
+      Navigator.pushReplacement(
          context,
          MaterialPageRoute(
            builder: (context) =>
-               OtpScreen(gmail: email, isForResetPassword: false),
+               LoginPageTesting(),
          ),
        );
 }

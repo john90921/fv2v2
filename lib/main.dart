@@ -84,7 +84,7 @@ class MyApp extends StatelessWidget {
           '/photoGuide': (context) => const Photoguide(),
           '/postPage':(context) => LoaderOverlay(child: PostPage()),
           '/postFormPage':(context) =>  LoaderOverlay(child: PostFormPage()),
-          '/login': (context) => const LoginPageTesting(),
+          '/login': (context) => LoaderOverlay(child: const LoginPageTesting()),
           '/NotificationPage': (context) => LoaderOverlay(child: NotificationPage()),
           '/postHistory': (context) => LoaderOverlay(child: PostHistoryPage()),
     //       '/home': (context) =>  ProfilePage(

@@ -24,8 +24,10 @@ class _LoginPageTestingState extends State<LoginPageTesting> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   Future<String?> _authUser(BuildContext context) async {
-
+    bool statusLogin = false;
+    String message = "";
      if (_formKey.currentState!.validate()) {
+      context.loaderOverlay.show();
     try {
       ApiResult result = await Apihelper.post(
         ApiRequest(
@@ -37,7 +39,7 @@ class _LoginPageTestingState extends State<LoginPageTesting> {
         ),
       );
    
-        print("result: ${result.message}");
+        
       if (result.status == true) {
         final token = result.data["token"];
         if (token != null) {
@@ -51,15 +53,45 @@ class _LoginPageTestingState extends State<LoginPageTesting> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text("login successfull")));
+        statusLogin = true;
+        message = "success";
+        
+      } else {
+        if(result.message =="unverified"){
+          message = result.message;
+          ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Account unverified, redirecting to OTP screen")),
+        );
+      
+        }
+        else{
+          print("login error: ${result.message}");
+          ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("invalid credentials")),
+        );
+        }
 
-        if (!mounted) return null;
+      }
+    } catch (e) {
+      print("login error: $e");
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Login error: $e")));
+
+
+    }
+      context.loaderOverlay.hide();
+    if(statusLogin){
+    if (!mounted) return null;
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const WidgetTree()),
            (Route<dynamic> route) => false,
         );
-      } else {
-        if(result.message =="unverified"){
+    }
+     else if(!statusLogin)
+     {
+      if(message =="unverified"){
           ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Account unverified, redirecting to OTP screen")),
         );
@@ -73,24 +105,8 @@ class _LoginPageTestingState extends State<LoginPageTesting> {
               ),
             );
           }
-          return null;
-        }
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("${result.message}")),
-        );
       }
-    } catch (e) {
-      print("login error: $e");
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Login error: $e")));
-
-
-    }
-    finally{
-    }
-
+     }
      }
   }
 

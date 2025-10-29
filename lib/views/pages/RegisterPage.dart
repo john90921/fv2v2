@@ -21,15 +21,17 @@ class _RegisterPageState extends State<RegisterPage> {
       String fullname = _nameController.text;
       String email = _emailController.text;
       String password = _passwordController.text;
+      bool status = false;
+      context.loaderOverlay.show();
       try {
-        context.loaderOverlay.show();
+      
         ApiResult result = await Apihelper.post(
           ApiRequest(
             path: "/register",
             data: {"name": fullname, "email": email, "password": password},
           ),
         );
-        context.loaderOverlay.hide();
+
         if (result.status == true) {
           // ScaffoldMessenger.of(context).showSnackBar(
           //   SnackBar(
@@ -38,36 +40,41 @@ class _RegisterPageState extends State<RegisterPage> {
           //     ),
           //   ),
           // );
-    
 
-            ScaffoldMessenger.of(context).showSnackBar(
+          ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-               "User created successfully, OTP sent to email for verification"
+                "User created successfully, OTP sent to email for verification",
               ),
             ),
           );
-          if (!mounted) return;
-          // You can add navigation or API integration here
-          Navigator.pushReplacement(
-  context,
-  MaterialPageRoute(builder: (context) => OtpScreen(
-    gmail: email,
-    isForResetPassword: false,
-  )),
-);
+          status = true;
+         
         } else {
+          print("Registration failed: ${result.message}");
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Registration failed ${result.message}")),
+            SnackBar(content: Text("Registration failed")),
           );
         }
       } catch (e) {
         print("Registration error: $e");
-         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Error during registration")),
-          );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Error during registration")));
         // TODO
       }
+      context.loaderOverlay.hide();
+     if (status) {
+  if (!mounted) return;
+       // You can add navigation or API integration here
+       Navigator.pushReplacement(
+         context,
+         MaterialPageRoute(
+           builder: (context) =>
+               OtpScreen(gmail: email, isForResetPassword: false),
+         ),
+       );
+}
     }
   }
 

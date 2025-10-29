@@ -23,7 +23,7 @@ class DioHandler {
   
   DioHandler._internal()
       : dio = Dio(BaseOptions(
-          baseUrl: "http://192.168.56.1:8000/api/v1", // change to your API
+          baseUrl: "https://backend-production-1e7d.up.railway.app/api/v1", // change to your API
           connectTimeout: const Duration(seconds: 10),
           receiveTimeout: const Duration(seconds: 10),
           headers: {

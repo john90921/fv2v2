@@ -19,13 +19,15 @@ class _RequestResetPageState extends State<RequestResetPage> {
 
   void _requestReset(String email) async {  
     final Dio _dio = DioHandler.instance.dio;
+    bool status = false;
+  
+
             try {
-              context.loaderOverlay.show();
+     
               final response = await _dio.post(
                 "/forgetPassword",
                 data: {"email": email},
               );
-              context.loaderOverlay.hide();
               if (response.data['status'] == true) {
                 // WidgetsBinding.instance.addPostFrameCallback((_) {
                 //   Navigator.pushReplacement(
@@ -38,17 +40,13 @@ class _RequestResetPageState extends State<RequestResetPage> {
                 //   );
                 // });
                 showMessage(context:context,message:  "Otp sent to your email.");
-                  if(!mounted) return;
-                  Navigator.pushReplacement(
-                     context,
-                        MaterialPageRoute(
-                          builder: (context) => OtpScreen(gmail:email, isForResetPassword: true),
-                        ),
-                  );
+                status = true;
+                  
                 
                 return null; // success
               } else if (response.data['status'] == false) {
-                showMessage(context:context,message:  "Error: ${response.data['message']}");
+                showMessage(context:context,message:  "Error");
+                print("Error: ${response.data['message']}");
               }
             } on DioException catch (e) {
               if (e.response != null) {
@@ -57,6 +55,16 @@ class _RequestResetPageState extends State<RequestResetPage> {
                 print("Error: ${e.message}"); //network error
               }
             }
+            if(status){
+            if(!mounted) return;
+                  Navigator.pushReplacement(
+                     context,
+                        MaterialPageRoute(
+                          builder: (context) => OtpScreen(gmail:email, isForResetPassword: true),
+                        ),
+                  );
+            }
+
 
   }
 

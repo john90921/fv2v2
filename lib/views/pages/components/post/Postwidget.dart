@@ -74,7 +74,7 @@ class _PostwidgetState extends State<Postwidget> {
               ListTile(
                 leading: CircleAvatar(
                   radius: 24,
-                  backgroundImage: post.ownerImage != null
+                backgroundImage: post.ownerImage != null
                       ? CachedNetworkImageProvider(post.ownerImage!)
                       : null,
                   child: post.ownerImage == null

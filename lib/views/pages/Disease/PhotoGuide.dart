@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:fv2/models/Post.dart';
 import 'package:fv2/providers/PostProvider.dart';
 import 'package:fv2/utils/message_helper.dart';
-import 'package:fv2/views/pages/Disease/PhotoConfirm.dart';
+import 'package:fv2/views/pages/Disease/PhotoScanConfirm.dart';
 import 'package:fv2/views/pages/components/form/CustomFormField.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:loader_overlay/loader_overlay.dart';
@@ -24,16 +24,16 @@ class _PhotoguideState extends State<Photoguide> {
   Future pickImage(ImageSource source, BuildContext context) async {
     // Use image_picker package to pick image from gallery or camera
     try {
-      context.loaderOverlay.show();
+    
       final image = await ImagePicker().pickImage(source: source);
-      context.loaderOverlay.hide();
+  
       if (image == null) return;
-      final imageTemporary = File(image!.path);
+      final imageTemporary = File(image.path);
 
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => PhotoConfirm(newImage: imageTemporary),
+          builder: (context) => LoaderOverlay(child: PhotoScanConfirm(newImage: imageTemporary)),
         ),
       );
 
@@ -44,7 +44,14 @@ class _PhotoguideState extends State<Photoguide> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Photo Guide'), centerTitle: true),
+      appBar: AppBar(
+        title: const Text('Photo Guide'), centerTitle: true
+      ,
+      leading: BackButton(
+        onPressed: () {
+          Navigator.pop(context);
+        },
+      )),
       body:  SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),

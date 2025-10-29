@@ -94,12 +94,7 @@ class _PlantDiseaseState extends State<PlantDisease> {
                         },
                         child: Text("Ask Community"),
                       ),
-                      if (widget.disease !=
-                          "Unknown Disease") // only can save result if disease is known
-                        ElevatedButton(
-                          onPressed: () {},
-                          child: Text("Saved Results"),
-                        ),
+                     
                     ],
                   ),
                 ),

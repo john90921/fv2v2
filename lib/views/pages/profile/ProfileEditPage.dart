@@ -112,9 +112,9 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                             padding: const EdgeInsets.all(8.0),
                             child: Center(
                               child:
-                                  newimage != null ||
-                                       oldImagePath !=
-                                          null // check if image or the url is not null //if url have photo then show , if image file picked then show
+                                  (newimage != null && newimage!.path.isNotEmpty )||
+                                       (oldImagePath !=
+                                          null && oldImagePath!.isNotEmpty) // check if image or the url is not null //if url have photo then show , if image file picked then show
                                   ? Stack(
                                       // show image with remove button
                                       children: [

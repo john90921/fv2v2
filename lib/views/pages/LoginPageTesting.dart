@@ -179,18 +179,18 @@ class _LoginPageTestingState extends State<LoginPageTesting> {
                   const SizedBox(height: 10),
 
                   // Forgot Password
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/requestResetPage');
-                      },
-                      child: const Text(
-                        "Forgot Password?",
-                        style: TextStyle(color: Colors.blueAccent),
-                      ),
-                    ),
-                  ),
+                  // Align(
+                  //   alignment: Alignment.centerRight,
+                  //   child: TextButton(
+                  //     onPressed: () {
+                  //       Navigator.pushNamed(context, '/requestResetPage');
+                  //     },
+                  //     child: const Text(
+                  //       "Forgot Password?",
+                  //       style: TextStyle(color: Colors.blueAccent),
+                  //     ),
+                  //   ),
+                  // ),
 
                   const SizedBox(height: 20),
 

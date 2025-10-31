@@ -120,10 +120,12 @@ Future<String?> uploadImage(File file) async {
                             String? result;
                          String? imageUrl;
                             try {
+                              context.loaderOverlay.show();
                             if (newimage != null && newimage!.path.isNotEmpty) {
                              imageUrl = await uploadImage(newimage!);
                             }
-                              if (widget.post != null) {
+                            context.loaderOverlay.hide();
+                              if (widget.post != null && context.mounted) {
                                 // editing existing post
                                 result =
                                     await Provider.of<PostProvider>(

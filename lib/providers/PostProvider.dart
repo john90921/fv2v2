@@ -167,19 +167,20 @@ class PostProvider extends ChangeNotifier {
     String? imagePath,
     BuildContext context,
   ) async {
+    context.loaderOverlay.show();
+    bool success = false;
     try {
       // Show loading overlay
-
+      print("image path: ${imagePath}");
       // Create form data for Dio
       FormData formData = FormData.fromMap({
         'title': title,
         'content': content,
         if (imagePath != null)
-          'image': await MultipartFile.fromFile(
-            imagePath,
-            filename: 'upload.jpg',
-          ),
+          'image': imagePath,
       });
+      print("form data: $formData");
+      print("Sending new post to API ... ${formData}");
 
       // Send POST request
       ApiResult result = await Apihelper.post(
@@ -197,13 +198,22 @@ class PostProvider extends ChangeNotifier {
 
         // Optionally refresh UI
         notifyListeners();
-        return "success added post";
+        success = true;
+        
       } else {
         print("error ${result.message}");
       }
     } catch (e) {
       print("error $e");
     }
+    context.loaderOverlay.hide();
+    if(success == true){
+    return "success added post";
+    }
+    else{
+      return "error adding post";
+    }
+
   }
 
   Future<String?> editPost({
@@ -226,10 +236,9 @@ class PostProvider extends ChangeNotifier {
         if (isRemoveImage == true && HaveUploadedImage == true)
           'remove_image': true,
         if (newImagePath != null)
-          'image': await MultipartFile.fromFile(
+          'image': 
             newImagePath,
-            filename: 'post.jpg',
-          ), //if new image selected
+//new image selected
       });
 
       ApiResult result = await Apihelper.patch(

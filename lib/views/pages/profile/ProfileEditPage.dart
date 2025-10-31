@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fv2/dio/ImageDioHandle.dart';
 import 'package:fv2/providers/UserProvider.dart';
 import 'package:fv2/utils/message_helper.dart';
 import 'package:fv2/views/pages/components/form/CustomFormField.dart';
@@ -65,6 +66,14 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
       print("Failed to pick image: $e");
     }
   }
+  Future<String?> uploadImage(File file) async {
+  try {
+    final url = await ImageDioHandle.instance.uploadToImgBB(file);
+    return url;
+  } catch (e) {
+    throw Exception('Image upload failed: $e');
+  }
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -220,13 +229,18 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                             print("Name: $newName");
                             print("Description: $newDescription");
                             print("Image: $newimage");
+                             String? imageUrl;
+       
+                            if (newimage != null && newimage!.path.isNotEmpty) {
+                             imageUrl= await uploadImage(newimage!);
+                            }
                             // Call provider to update profile
                           String? message =  await Provider.of<Userprovider>(context, listen: false)
                                 .editProfile(
                               name: newName!,
                               description: newDescription!,
                               HaveUploadedImage: HaveUploadedImage,
-                              newImagePath: newimage?.path,
+                              newImagePath: imageUrl,
                               isRemoveImage: IsDeletedImage,
                             );
                             if(context.mounted){

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fv2/dio/ImageDioHandle.dart';
 import 'package:fv2/models/Post.dart';
 import 'package:fv2/providers/PostProvider.dart';
 import 'package:fv2/utils/message_helper.dart';
@@ -69,8 +70,16 @@ class _PostFormPageState extends State<PostFormPage> {
     } on PlatformException catch (e) {
       print("Failed to pick image: $e");
     }
-  }
 
+  }
+Future<String?> uploadImage(File file) async {
+  try {
+    final url = await ImageDioHandle.instance.uploadToImgBB(file);
+    return url;
+  } catch (e) {
+    throw Exception('Image upload failed: $e');
+  }
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -109,7 +118,11 @@ class _PostFormPageState extends State<PostFormPage> {
                               "Title: $newtitle, Content: $newcontent, Image: $newimage.path",
                             );
                             String? result;
+                         String? imageUrl;
                             try {
+                            if (newimage != null && newimage!.path.isNotEmpty) {
+                             imageUrl = await uploadImage(newimage!);
+                            }
                               if (widget.post != null) {
                                 // editing existing post
                                 result =
@@ -122,7 +135,7 @@ class _PostFormPageState extends State<PostFormPage> {
                                       content: newcontent!,
                                       isRemoveImage : IsDeletedImage,
                                       HaveUploadedImage : HaveUploadedImage,
-                                      newImagePath: newimage?.path,
+                                      newImagePath: imageUrl,
                                     );
                               } else {
                                 result =
@@ -132,7 +145,7 @@ class _PostFormPageState extends State<PostFormPage> {
                                     ).addNewPost(
                                       newtitle!,
                                       newcontent!,
-                                      newimage?.path,
+                                      imageUrl,
                                       context,
                                     );
                               }
@@ -143,6 +156,7 @@ class _PostFormPageState extends State<PostFormPage> {
                             if (result != null) {
                               showMessage(context: context, message: result);
                             }
+                            
                             if(context.mounted){
                             Navigator.pop(context);
                             }

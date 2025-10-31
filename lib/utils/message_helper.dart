@@ -9,8 +9,7 @@ void showMessage(
   bool isError = false,
 }) {
   // Remove any existing snackbar before showing a new one
-  ScaffoldMessenger.of(context).hideCurrentSnackBar();
-
+if(!context.mounted) return;
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       content: Text(

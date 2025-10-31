@@ -150,7 +150,7 @@ class _PostwidgetState extends State<Postwidget> {
                     width: double.infinity,
                     child: CachedNetworkImage(
                       imageUrl: post.image!,
-                      fit: BoxFit.fill,
+                      fit: BoxFit.contain,
                       placeholder: (context, url) =>
                           const Center(child: CircularProgressIndicator()),
                       errorWidget: (context, url, error) =>

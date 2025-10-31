@@ -45,6 +45,7 @@ class NotificationProvider extends ChangeNotifier {
     try {
       if (index != -1) {
         _notifications[index].is_read = true;
+        unread_count--;
         notifyListeners();
       }
       ApiResult result = await Apihelper.post(

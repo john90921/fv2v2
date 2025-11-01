@@ -1,10 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fv2/api/ApiHelper.dart';
-import 'package:fv2/models/Post.dart';
 import 'package:fv2/models/Comment.dart';
-import 'package:fv2/models/Reply.dart';
 import 'package:fv2/providers/PostProvider.dart';
+import 'package:fv2/services/PushNotificationApiService.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 
 class CommentProvider extends ChangeNotifier {
@@ -92,6 +91,7 @@ class CommentProvider extends ChangeNotifier {
         print("error ${result.message}");
         return " error";
       }
+      return null;
     } catch (e) {
       print("error $e");
       return ("error");
@@ -158,6 +158,20 @@ class CommentProvider extends ChangeNotifier {
         isAddingComment = false;
         notifyListeners();
         _postProvider.addCommentsCount(postId);
+        
+        // Send push notification to post owner
+        try {
+          await PushNotificationApiService.sendCommentNotification(
+            postId: postId,
+            commentId: comment_data.id,
+            commenterName: comment_data.owner_name ?? 'Anonymous',
+            commentContent: content,
+          );
+        } catch (e) {
+          print("Error sending push notification: $e");
+          // Don't fail the comment creation if notification fails
+        }
+        
         return "success add comment";
       } else {
         print("error ${result.message}");

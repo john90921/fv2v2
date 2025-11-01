@@ -17,7 +17,7 @@ import 'package:provider/provider.dart';
 
 class PostPage extends StatefulWidget {
   const PostPage({super.key});
-  
+
   @override
   State<PostPage> createState() => _PostPageState();
 }
@@ -25,8 +25,9 @@ class PostPage extends StatefulWidget {
 class _PostPageState extends State<PostPage> {
   late int postId;
   bool _loaded = false;
-  late Post? post;
+  Post? post;
   late int? highlightedCommentId;
+  bool _isLoadingPost = false;
 
   // @override
   // void didChangeDependencies() { // called when the widget is inserted into the tree
@@ -44,15 +45,37 @@ class _PostPageState extends State<PostPage> {
 
   @override
   void initState() {
-
-  WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       // wait for widgets to be built then fetch
-      CommentProvider commentProvider = Provider.of<CommentProvider>(context, listen: false);
-      commentProvider.initial();  // this to reset the comment provider// must to be here to prevent the highlighted comment id from being persisted
-      if(highlightedCommentId!=null){
-        commentProvider.highlightedCommentId = highlightedCommentId; // pass the highlighted commentid
+      CommentProvider commentProvider = Provider.of<CommentProvider>(
+        context,
+        listen: false,
+      );
+      commentProvider
+          .initial(); // this to reset the comment provider// must to be here to prevent the highlighted comment id from being persisted
+      if (highlightedCommentId != null) {
+        commentProvider.highlightedCommentId =
+            highlightedCommentId; // pass the highlighted commentid
       }
       commentProvider.fetchComments(postId);
+
+      // If post is null, fetch it from the backend
+      if (post == null) {
+        setState(() {
+          _isLoadingPost = true;
+        });
+
+        PostProvider postProvider = Provider.of<PostProvider>(
+          context,
+          listen: false,
+        );
+        await postProvider.fetchPostByID(postId);
+
+        setState(() {
+          post = postProvider.getPost(postId);
+          _isLoadingPost = false;
+        });
+      }
     });
     // TODO: implement initState
 
@@ -63,10 +86,15 @@ class _PostPageState extends State<PostPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_loaded) {
-       final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>; // intial the ppst it
+      final args =
+          ModalRoute.of(context)!.settings.arguments
+              as Map<String, dynamic>; // intial the ppst it
       postId = args['post_id'] as int;
       highlightedCommentId = args['comment_id'] ?? null;
-      post = Provider.of<PostProvider>(context, listen: false).getPost(postId); // get post from provider
+      post = Provider.of<PostProvider>(
+        context,
+        listen: false,
+      ).getPost(postId); // get post from provider
 
       _loaded = true;
     }
@@ -77,13 +105,27 @@ class _PostPageState extends State<PostPage> {
   @override
   Widget build(BuildContext context) {
     print('Post ID: $postId');
+
+    // Show loading indicator while fetching post
+    if (_isLoadingPost) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text("Post Details"),
+          leading: const BackButton(),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    // Show error only if post is still null after fetch attempt
     if (post == null) {
       return Scaffold(
-          appBar: AppBar(
-        title: const Text("Post Details"),
-        leading: const BackButton(),
-          ),
-        body: const Center(child: Text("Post deleted or not found")));
+        appBar: AppBar(
+          title: const Text("Post Details"),
+          leading: const BackButton(),
+        ),
+        body: const Center(child: Text("Post deleted or not found")),
+      );
     }
     return Scaffold(
       appBar: AppBar(
@@ -98,13 +140,12 @@ class _PostPageState extends State<PostPage> {
               Divider(),
               Column(
                 children: [
-                Container(
+                  Container(
                     // Comment input field
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Row(
                         children: [
-                      
                           Expanded(
                             child: TextField(
                               controller: _commentController,
@@ -134,7 +175,7 @@ class _PostPageState extends State<PostPage> {
                               }
                               FocusScope.of(context).unfocus(); // Hide keyboard
                               _commentController.clear();
-        
+
                               // Clear immediately for better UX
                               try {
                                 String? message =
@@ -142,9 +183,9 @@ class _PostPageState extends State<PostPage> {
                                       context,
                                       listen: false,
                                     ).addComments(postId, content, context);
-                                ScaffoldMessenger.of(
-                                  context,
-                                ).showSnackBar(SnackBar(content: Text(message!)));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(message!)),
+                                );
                               } catch (e) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
@@ -160,8 +201,10 @@ class _PostPageState extends State<PostPage> {
                   ),
                 ],
               ),
-        // check if post has comments
-              CommentListWidget(postId: post!.id), // if not, just return "no comments yet"
+              // check if post has comments
+              CommentListWidget(
+                postId: post!.id,
+              ), // if not, just return "no comments yet"
             ],
           ),
         ),

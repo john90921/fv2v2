@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_login/flutter_login.dart';
 import 'package:fv2/api/ApiHelper.dart';
-import 'package:fv2/dio/DioHandler.dart';
 import 'package:fv2/providers/UserProvider.dart';
 import 'package:fv2/token/TokenManager.dart';
 import 'package:fv2/views/WidgetTree.dart';
-import 'package:fv2/views/pages/HomePage.dart';
 import 'package:fv2/views/pages/OtpScreen.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
+import 'package:fv2/services/HuaweiAuthService.dart';
+
 //sorvictor90@gmail.com
 class LoginPageTesting extends StatefulWidget {
   const LoginPageTesting({super.key});
@@ -23,91 +20,169 @@ class _LoginPageTestingState extends State<LoginPageTesting> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  Future<String?> _authUser(BuildContext context) async {
+  final HuaweiAuthService _huaweiAuthService = HuaweiAuthService();
+
+  Future<void> _authUser(BuildContext context) async {
     bool statusLogin = false;
     String message = "";
-     if (_formKey.currentState!.validate()) {
+    if (_formKey.currentState!.validate()) {
       context.loaderOverlay.show();
-    try {
-      ApiResult result = await Apihelper.post(
-        ApiRequest(
-          path: "/login",
-          data: {
-            "email": _emailController.text,
-            "password": _passwordController.text,
-          },
-        ),
-      );
-   
-        
-      if (result.status == true) {
-        final token = result.data["token"];
-        if (token != null) {
-          await TokenManager.instance.saveAccessToken(token); // login success
+      try {
+        ApiResult result = await Apihelper.post(
+          ApiRequest(
+            path: "/login",
+            data: {
+              "email": _emailController.text,
+              "password": _passwordController.text,
+            },
+          ),
+        );
+
+        if (result.status == true) {
+          final token = result.data["token"];
+          if (token != null) {
+            await TokenManager.instance.saveAccessToken(token); // login success
+          }
+          final saveToken = await TokenManager.instance.loadAccessToken();
+          print("login successfull, {$saveToken}");
+          print("user data: ${result.data}");
+          Map<String, dynamic> user =
+              result.data["user"] as Map<String, dynamic>;
+          Provider.of<Userprovider>(context, listen: false).login(user);
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text("login successfull")));
+          statusLogin = true;
+          message = "success";
+        } else {
+          if (result.message == "unverified") {
+            message = result.message;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("Account unverified, redirecting to OTP screen"),
+              ),
+            );
+          } else {
+            print("login error: ${result.message}");
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text("invalid credentials")));
+          }
         }
-        final saveToken = await TokenManager.instance.loadAccessToken();
-        print("login successfull, {$saveToken}");
-        print("user data: ${result.data}");
-        Map<String, dynamic> user = result.data["user"] as Map<String, dynamic>;
-        Provider.of<Userprovider>(context, listen: false).login(user);
+      } catch (e) {
+        print("login error: $e");
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text("login successfull")));
-        statusLogin = true;
-        message = "success";
-        
-      } else {
-        if(result.message =="unverified"){
-          message = result.message;
-          ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Account unverified, redirecting to OTP screen")),
-        );
-      
-        }
-        else{
-          print("login error: ${result.message}");
-          ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("invalid credentials")),
-        );
-        }
-
+        ).showSnackBar(SnackBar(content: Text("Login error: $e")));
       }
-    } catch (e) {
-      print("login error: $e");
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Login error: $e")));
-
-
-    }
-    context.loaderOverlay.hide();
-    if(statusLogin){
-    if (!mounted) return null;
+      context.loaderOverlay.hide();
+      if (statusLogin) {
+        if (!mounted) return;
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const WidgetTree()),
-           (Route<dynamic> route) => false,
+          (Route<dynamic> route) => false,
         );
-    }
-     else if(!statusLogin)
-     {
-      if(message =="unverified"){
+      } else if (!statusLogin) {
+        if (message == "unverified") {
           ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Account unverified, redirecting to OTP screen")),
-        );
+            SnackBar(
+              content: Text("Account unverified, redirecting to OTP screen"),
+            ),
+          );
           String gmail = _emailController.text;
           if (context.mounted) {
             Navigator.of(context).push(
               PageRouteBuilder(
-                pageBuilder: (_, __, ___) => OtpScreen(gmail: gmail, isForResetPassword: false),
+                pageBuilder: (_, __, ___) =>
+                    OtpScreen(gmail: gmail, isForResetPassword: false),
                 transitionDuration: Duration.zero,
                 reverseTransitionDuration: Duration.zero,
               ),
             );
           }
+        }
       }
-     }
-     }
+    }
+  }
+
+  /// Login with Huawei ID
+  Future<void> _loginWithHuaweiId() async {
+    try {
+      context.loaderOverlay.show();
+
+      // Sign in with Huawei
+      final huaweiUserData = await _huaweiAuthService.signIn();
+
+      if (huaweiUserData != null) {
+        // Send Huawei ID token to your backend for verification and authentication
+        try {
+          ApiResult result = await Apihelper.post(
+            ApiRequest(
+              path: "/huawei-login",
+              data: {
+                "idToken": huaweiUserData['idToken'],
+                "email": huaweiUserData['email'],
+                "displayName": huaweiUserData['displayName'],
+                "openId": huaweiUserData['openId'],
+                "unionId": huaweiUserData['unionId'],
+                "avatarUri": huaweiUserData['avatarUri'],
+              },
+            ),
+          );
+
+          if (result.status == true) {
+            final token = result.data["token"];
+            if (token != null) {
+              await TokenManager.instance.saveAccessToken(token);
+            }
+
+            print("Huawei login successful");
+            print("user data: ${result.data}");
+
+            Map<String, dynamic> user =
+                result.data["user"] as Map<String, dynamic>;
+            Provider.of<Userprovider>(context, listen: false).login(user);
+
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text("Huawei login successful")));
+
+            if (!mounted) return;
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const WidgetTree()),
+              (Route<dynamic> route) => false,
+            );
+          } else {
+            print("Backend authentication failed: ${result.message}");
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("Authentication failed: ${result.message}"),
+              ),
+            );
+          }
+        } catch (e) {
+          print("Backend authentication error: $e");
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text("Authentication error: $e")));
+        }
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Huawei sign in cancelled")));
+      }
+    } catch (e) {
+      print("Huawei login error: $e");
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Huawei login error: $e")));
+    } finally {
+      if (mounted) {
+        context.loaderOverlay.hide();
+      }
+    }
   }
 
   // void _login() {
@@ -191,20 +266,61 @@ class _LoginPageTestingState extends State<LoginPageTesting> {
                   //     ),
                   //   ),
                   // ),
-
                   const SizedBox(height: 20),
 
                   // Login Button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: (){
+                      onPressed: () {
                         _authUser(context);
                       },
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
                       child: const Text("Login"),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Divider with "OR"
+                  Row(
+                    children: [
+                      Expanded(child: Divider(thickness: 1)),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text(
+                          "OR",
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      Expanded(child: Divider(thickness: 1)),
+                    ],
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Huawei ID Login Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: _loginWithHuaweiId,
+                      icon: Icon(Icons.phone_android, color: Colors.red[700]),
+                      label: const Text(
+                        "Login with Huawei ID",
+                        style: TextStyle(color: Colors.black87),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        side: BorderSide(color: Colors.grey[400]!),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
                     ),
                   ),
 

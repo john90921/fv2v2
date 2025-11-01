@@ -152,9 +152,8 @@
 //     );
 //   }
 // }
-import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:fv2/providers/HmsPushProvider.dart';
 import 'package:fv2/providers/NotificationProvider.dart';
 import 'package:fv2/providers/PostProvider.dart';
 import 'package:fv2/providers/UserProvider.dart';
@@ -199,6 +198,14 @@ class _WidgetTreeState extends State<WidgetTree> {
         context,
         listen: false,
       ).fetchUnreadCount();
+      
+      // Initialize HMS Push for receiving notifications
+      try {
+        await Provider.of<HmsPushProvider>(context, listen: false).initialize();
+        print('HMS Push initialized in WidgetTree');
+      } catch (e) {
+        print('Error initializing HMS Push: $e');
+      }
     });
     // TODO: implement initState
     super.initState();
@@ -216,6 +223,13 @@ class _WidgetTreeState extends State<WidgetTree> {
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
+              // Unregister push token before logout
+              try {
+                await Provider.of<HmsPushProvider>(context, listen: false).unregister();
+              } catch (e) {
+                print('Error unregistering push token: $e');
+              }
+              
               bool logoutStatus = await Provider.of<Userprovider>(
                 context,
                 listen: false,

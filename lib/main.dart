@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fv2/providers/CommentProvider.dart';
+import 'package:fv2/providers/HmsPushProvider.dart';
 import 'package:fv2/providers/NotificationProvider.dart';
 import 'package:fv2/providers/PostProvider.dart';
 import 'package:fv2/providers/UserProvider.dart';
@@ -34,6 +35,7 @@ void main() async{
         ChangeNotifierProvider(create: (context) => Userprovider()),
         ChangeNotifierProvider(create: (context) => CommentProvider()),
         ChangeNotifierProvider(create: (context) => NotificationProvider()),
+        ChangeNotifierProvider(create: (context) => HmsPushProvider()),
         ChangeNotifierProxyProvider<PostProvider,CommentProvider>(
           create: (_) => CommentProvider(), 
           update: (_,postProvider,commentProvider) =>

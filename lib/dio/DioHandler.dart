@@ -17,60 +17,59 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fv2/main.dart';
 import 'package:fv2/token/TokenManager.dart';
+
 class DioHandler {
   final Dio dio;
-  // https://backend-production-1e7d.up.railway.app/api/v1
-  
+
   DioHandler._internal()
-      : dio = Dio(BaseOptions(
-          baseUrl: "https://backend-production-1a5a.up.railway.app/api/v1", // change to your API
+    : dio = Dio(
+        BaseOptions(
+          // Use http://10.0.2.2:8000/api/v1 for Android Emulator, or your computer's IP for physical device
+          baseUrl: "http://10.0.2.2:8000/api/v1", // change to your API
           connectTimeout: const Duration(seconds: 10),
           receiveTimeout: const Duration(seconds: 10),
-          headers: {
-            "Accept": "application/json",
-          },
-        )) {
+          headers: {"Accept": "application/json"},
+        ),
+      ) {
     // Add interceptor to attach token
     dio.interceptors.add(
       InterceptorsWrapper(
-      onRequest: (options, handler) async {
-        String? token = TokenManager.instance.accessToken;
+        onRequest: (options, handler) async {
+          String? token = TokenManager.instance.accessToken;
 
-        // If token not in memory, try loading from storage
-        if (token == null) {
-          await TokenManager.instance.loadAccessToken();
-          token = TokenManager.instance.accessToken;
-        }
-        // Attach Authorization header if token exists
-        if (token != null) {
-          options.headers['Authorization'] = 'Bearer $token';
-        }
-        // options.headers['Authorization'] = 'Bearer 1|lPTgCt5iF6fBpSRk0pxa48nTZh48IZi4bFodWijS97ee52b7';
+          // If token not in memory, try loading from storage
+          if (token == null) {
+            await TokenManager.instance.loadAccessToken();
+            token = TokenManager.instance.accessToken;
+          }
+          // Attach Authorization header if token exists
+          if (token != null) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
+          // options.headers['Authorization'] = 'Bearer 1|lPTgCt5iF6fBpSRk0pxa48nTZh48IZi4bFodWijS97ee52b7';
 
-// 37|AJBFI5UPdgBnduAc6PUaYuu276UanKGbEt6xjqA2f712b8ee
-        return handler.next(options);
-      },
-      onError: (err, handler) {
-        if (err.response?.statusCode == 401) {
-          // Token invalid or expired
-        //   TokenManager.instance.clearAccessToken();
-        //     ScaffoldMessenger.of(
-        //     navigatorKey.currentState!.context,
-        //   ).showSnackBar(
-        //     const SnackBar(content: Text('Session expired. Please log in again.')),
-        //   );
-        //   // Redirect to login page
-        //    navigatorKey.currentState?.pushNamedAndRemoveUntil(
-        //   '/login',
-        //   (route) => false, // removes all previous routes
-        // );
-        }
-        return handler.next(err);
-      },
-    )
-    
+          // 37|AJBFI5UPdgBnduAc6PUaYuu276UanKGbEt6xjqA2f712b8ee
+          return handler.next(options);
+        },
+        onError: (err, handler) {
+          if (err.response?.statusCode == 401) {
+            // Token invalid or expired
+            //   TokenManager.instance.clearAccessToken();
+            //     ScaffoldMessenger.of(
+            //     navigatorKey.currentState!.context,
+            //   ).showSnackBar(
+            //     const SnackBar(content: Text('Session expired. Please log in again.')),
+            //   );
+            //   // Redirect to login page
+            //    navigatorKey.currentState?.pushNamedAndRemoveUntil(
+            //   '/login',
+            //   (route) => false, // removes all previous routes
+            // );
+          }
+          return handler.next(err);
+        },
+      ),
     );
-
   }
 
   // Singleton instance

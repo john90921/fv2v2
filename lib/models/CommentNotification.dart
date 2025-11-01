@@ -4,14 +4,14 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 
 class CommentNotification {
- final String id;
- final String type;
- final String title;
- final String message;
- final int comment_id;
- final int post_id;
-final DateTime createdAt;
- final IconData icon = Icons.comment;
+  final String id;
+  final String type;
+  final String title;
+  final String message;
+  final int comment_id;
+  final int post_id;
+  final DateTime createdAt;
+  final IconData icon = Icons.comment;
   bool is_read;
 
   CommentNotification({
@@ -24,9 +24,6 @@ final DateTime createdAt;
     required this.createdAt,
     required this.is_read,
   });
-  
-
-
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
@@ -43,8 +40,8 @@ final DateTime createdAt;
 
   factory CommentNotification.fromMap(Map<String, dynamic> map) {
     return CommentNotification(
-      id: map['id'] ,
-      type: map['type'] ?? '' ,
+      id: map['id'],
+      type: map['type'] ?? '',
       title: map['title'] ?? '',
       message: map['message'] ?? "",
       comment_id: map['comment_id'] ?? "",
@@ -54,7 +51,7 @@ final DateTime createdAt;
     );
   }
   String getTimeAgo() {
-  Duration diff = DateTime.now().difference(createdAt);
+    Duration diff = DateTime.now().difference(createdAt);
 
     if (diff.inDays > 0) {
       return "${diff.inDays} day${diff.inDays > 1 ? 's' : ''} ago";
@@ -66,7 +63,9 @@ final DateTime createdAt;
       return "just now";
     }
   }
+
   String toJson() => json.encode(toMap());
 
-  factory CommentNotification.fromJson(String source) => CommentNotification.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory CommentNotification.fromJson(String source) =>
+      CommentNotification.fromMap(json.decode(source) as Map<String, dynamic>);
 }

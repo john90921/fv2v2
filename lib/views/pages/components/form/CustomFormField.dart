@@ -14,7 +14,6 @@ class CustomFormField extends StatelessWidget {
       children: [
         const SizedBox(height: 10),
         TextFormField(
-
           keyboardType: TextInputType.multiline,
           maxLines: null, // Allows unlimited lines
           minLines: minLines, // Starts with 3 lines tall

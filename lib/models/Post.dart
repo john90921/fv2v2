@@ -19,6 +19,8 @@ class Post extends ChangeNotifier {
   final int owner_id;
   final String? ownerImage;
   List<Comment>? comments;
+  final String? state;
+  final String? city;
 
 
   Post({
@@ -35,6 +37,9 @@ class Post extends ChangeNotifier {
     required this.ownerName,
     required this.ownerImage,
     this.comments,
+    this.state,
+    this.city,
+  
   });
 
   //  Post.postList({
@@ -111,6 +116,8 @@ class Post extends ChangeNotifier {
       owner_id: map['owner_id'] as int,
       ownerName: map['owner_name'] ?? 'no name',
       ownerImage: map['owner_image'] as String?,
+      state: map['state'] as String?,
+      city: map['city'] as String?,
     );
   }
 

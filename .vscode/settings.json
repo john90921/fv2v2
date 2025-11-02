@@ -1,3 +1,8 @@
 {
-    "java.configuration.updateBuildConfiguration": "interactive"
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "files.associations": {
+        "*.embeddedhtml": "html",
+        "xiosbase": "cpp"
+    },
+    "cmake.sourceDirectory": "C:/Users/sorvi/OneDrive/Documents/Ump Documents/Year4/fyp/frontend/fv7/v1/fv2v2/linux"
 }

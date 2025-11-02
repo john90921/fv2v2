@@ -11,7 +11,8 @@ import 'package:fv2/views/pages/components/form/CustomFormField.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
-
+import 'package:location/location.dart';
+import 'package:geocoding/geocoding.dart' hide Location;
 class PostFormPage extends StatefulWidget {
   final Post? post;
   final File? imageFile;
@@ -26,11 +27,55 @@ class _PostFormPageState extends State<PostFormPage> {
   String? newtitle, newcontent;
   File? newimage;
   String? oldImagePath;
+  String? city;
+  String? state;
   final TextEditingController titleController = TextEditingController();
   final TextEditingController contentController = TextEditingController();
+  final TextEditingController cityController = TextEditingController();
+  final TextEditingController stateController = TextEditingController();
+
+
   bool IsDeletedImage = false;
   bool HaveUploadedImage = false;
+  Future<void> _getLocation() async {
+    Location location = Location();
 
+bool serviceEnabled;
+PermissionStatus permissionGranted;
+LocationData locationData;
+
+serviceEnabled = await location.serviceEnabled();
+if (!serviceEnabled) {
+  serviceEnabled = await location.requestService();
+  if (!serviceEnabled) {
+    return;
+  }
+}
+
+permissionGranted = await location.hasPermission();
+if (permissionGranted == PermissionStatus.denied) {
+  permissionGranted = await location.requestPermission();
+  if (permissionGranted != PermissionStatus.granted) {
+    return;
+  }
+}
+
+locationData = await location.getLocation();
+
+    // Get coordinates
+    final loc = await location.getLocation();
+
+    // Get city, state, country
+    final placemarks = await placemarkFromCoordinates(
+      loc.latitude!,
+      loc.longitude!,
+    );
+    final place = placemarks.first;
+
+    stateController.text = place.administrativeArea ?? '';
+    cityController.text = place.locality ?? '';
+    print('City: ${place.locality}, State: ${place.administrativeArea}, Country: ${place.country}');
+  }
   @override
   void initState() {
     super.initState();
@@ -120,11 +165,9 @@ Future<String?> uploadImage(File file) async {
                             String? result;
                          String? imageUrl;
                             try {
-                              context.loaderOverlay.show();
                             if (newimage != null && newimage!.path.isNotEmpty) {
                              imageUrl = await uploadImage(newimage!);
                             }
-                            context.loaderOverlay.hide();
                               if (widget.post != null && context.mounted) {
                                 // editing existing post
                                 result =
@@ -149,6 +192,8 @@ Future<String?> uploadImage(File file) async {
                                       newcontent!,
                                       imageUrl,
                                       context,
+                                      state,
+                                      city,
                                     );
                               }
                              
@@ -196,6 +241,58 @@ Future<String?> uploadImage(File file) async {
                       newcontent = value;
                     },
                   ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ElevatedButton.icon(
+                      onPressed: () async {
+                        await _getLocation();
+                      },
+                              icon: const Icon(Icons.location_on),
+                              label: const Text(
+                                'Get My Location',
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
+                  ),
+                  TextFormField(
+                    enabled: false,
+                    controller: stateController,
+                    decoration: InputDecoration(
+                      labelText: "State",
+                      border: const OutlineInputBorder(),
+                    ),
+                    minLines: 1,
+                    validator: (value) {
+                      return null;
+                    },
+                    onSaved: (value) {
+                      state = value;
+                    },
+                  ),
+                  const SizedBox(height: 10)
+                  ,
+                   TextFormField(
+                    enabled: false,
+                    controller: cityController,
+                    decoration: InputDecoration(
+                      labelText: "City",
+                      border: const OutlineInputBorder(),
+                    ),
+                    minLines: 1,
+                      validator: (value) {
+                      return null;
+                    },
+                    onSaved: (value) {
+                      city = value;
+                    },
+                  ),
+                  const SizedBox(height: 10),
                   Container(
                     //image display  and  picker container
                     decoration: BoxDecoration(

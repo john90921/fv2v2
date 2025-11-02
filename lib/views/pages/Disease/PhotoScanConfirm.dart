@@ -59,10 +59,8 @@ class PhotoScanConfirm extends StatelessWidget {
                   double? confidence;
                   DiseaseModel? diseaseModel;
                   bool status = true; // check if the request was successful
-                  context.loaderOverlay.show();
 
                   try {
-                     context.loaderOverlay.show();
 
                     FormData formData;
 
@@ -111,7 +109,6 @@ status = true;
                   } catch (e, st) {
                     print("Error during AP1I POST request: $e\n$st");
                   }
-               context.loaderOverlay.hide();
 
                   if(context.mounted && status){Navigator.push(
                     context,

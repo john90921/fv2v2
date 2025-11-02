@@ -24,7 +24,7 @@ class _RegisterPageState extends State<RegisterPage> {
       String email = _emailController.text;
       String password = _passwordController.text;
       bool status = false;
-      context.loaderOverlay.show();
+      
       try {
       
         ApiResult result = await Apihelper.post(
@@ -65,7 +65,6 @@ class _RegisterPageState extends State<RegisterPage> {
         ).showSnackBar(SnackBar(content: Text("Error during registration")));
         // TODO
       }
-      context.loaderOverlay.hide();
      if (status) {
   if (!mounted) return;
        // You can add navigation or API integration here

@@ -210,7 +210,7 @@ class _WidgetTreeState extends State<WidgetTree> {
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text('Widget Tree'),
+        title: const Text('FruitGuard'),
         centerTitle: false,
         actions: [
           IconButton(

@@ -94,7 +94,6 @@ class ReplyProvider extends ChangeNotifier {
     required String content,
     required BuildContext context,
   }) async {
-    context.loaderOverlay.show();
     try {
       ApiResult result = await Apihelper.post(
         ApiRequest(
@@ -124,7 +123,6 @@ class ReplyProvider extends ChangeNotifier {
       print("error $e");
       return ("error");
     }finally {
-      context.loaderOverlay.hide();
     }
   }
 
@@ -173,7 +171,6 @@ class ReplyProvider extends ChangeNotifier {
     BuildContext context,
   ) async {
     // id comment
-    context.loaderOverlay.show(); // show the loader overlay
     try {
       ApiResult result = await Apihelper.delete(ApiRequest(path: "/reply/$id"));
       print(result.message); // delete the comment
@@ -191,7 +188,6 @@ class ReplyProvider extends ChangeNotifier {
       print("error $e");
       return ("error");
     } finally {
-      context.loaderOverlay.hide();
       notifyListeners();
     }
   }
@@ -204,7 +200,6 @@ class ReplyProvider extends ChangeNotifier {
     }
   ) async {
     try {
-      context.loaderOverlay.show();
       ApiResult result = await Apihelper.patch(
         ApiRequest(path: "/reply/$Id", data: {"content": content}),
       );
@@ -224,7 +219,6 @@ class ReplyProvider extends ChangeNotifier {
       return ("error");
     }
     finally {
-      context.loaderOverlay.hide();
       notifyListeners();
     }
   }

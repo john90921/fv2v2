@@ -82,7 +82,7 @@ class _PostwidgetState extends State<Postwidget> {
                       : null,
                 ),
                 title: Text(post.ownerName), // User name
-                subtitle: Text(post.getTimeAgo()), // Post time
+                subtitle: Text("${post.getTimeAgo()} \n ${post.state?? ""} \n ${post.city??""}"), // Post time
                 trailing: user_id == post.owner_id ? IconButton(
                   icon: Icon(Icons.more_horiz),
                   onPressed: () {
@@ -118,7 +118,9 @@ class _PostwidgetState extends State<Postwidget> {
                       } catch (e) {
                         print("error $e");
                       }
-                }, icon: Icon(Icons.more_horiz)), // More options icon
+                }, icon: Icon(Icons.more_horiz))
+                ,
+                 // More options icon
               ),
                Padding(
                 padding: const EdgeInsets.all(20.0),

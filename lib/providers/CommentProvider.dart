@@ -205,7 +205,6 @@ class CommentProvider extends ChangeNotifier {
     }
   ) async {
     try {
-      context.loaderOverlay.show();
       ApiResult result = await Apihelper.patch(
         ApiRequest(path: "/comment/$Id", data: {"content": content}),
       );
@@ -222,7 +221,6 @@ class CommentProvider extends ChangeNotifier {
       print("error $e");
       return ("error");
     } finally {
-      context.loaderOverlay.hide();
     }
   }
 }

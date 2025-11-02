@@ -166,8 +166,9 @@ class PostProvider extends ChangeNotifier {
     String content,
     String? imagePath,
     BuildContext context,
+    String? state,
+    String? city,
   ) async {
-    context.loaderOverlay.show();
     bool success = false;
     try {
       // Show loading overlay
@@ -178,6 +179,10 @@ class PostProvider extends ChangeNotifier {
         'content': content,
         if (imagePath != null)
           'image': imagePath,
+        if (state != null)
+         'state': state,
+        if (city != null)
+          'city': city,
       });
       print("form data: $formData");
       print("Sending new post to API ... ${formData}");
@@ -206,7 +211,6 @@ class PostProvider extends ChangeNotifier {
     } catch (e) {
       print("error $e");
     }
-    context.loaderOverlay.hide();
     if(success == true){
     return "success added post";
     }

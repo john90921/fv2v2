@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 /// [isError] = true shows it in red, otherwise green.
 void showMessage(
  {required BuildContext context,
-  required String message, 
+   String? message, 
   bool isError = false,
 }) {
   // Remove any existing snackbar before showing a new one
@@ -13,7 +13,7 @@ if(!context.mounted) return;
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       content: Text(
-        message,
+        message?? (isError ? "An error occurred" : "Operation successful"),
         style: const TextStyle(color: Colors.white),
       ),
       backgroundColor: isError ? Colors.red : Colors.green,

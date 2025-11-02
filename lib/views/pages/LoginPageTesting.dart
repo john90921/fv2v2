@@ -9,7 +9,6 @@ import 'package:fv2/token/TokenManager.dart';
 import 'package:fv2/views/WidgetTree.dart';
 import 'package:fv2/views/pages/HomePage.dart';
 import 'package:fv2/views/pages/OtpScreen.dart';
-import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 //sorvictor90@gmail.com
 class LoginPageTesting extends StatefulWidget {
@@ -27,7 +26,6 @@ class _LoginPageTestingState extends State<LoginPageTesting> {
     bool statusLogin = false;
     String message = "";
      if (_formKey.currentState!.validate()) {
-      context.loaderOverlay.show();
     try {
       ApiResult result = await Apihelper.post(
         ApiRequest(
@@ -80,7 +78,6 @@ class _LoginPageTestingState extends State<LoginPageTesting> {
 
 
     }
-    context.loaderOverlay.hide();
     if(statusLogin){
     if (!mounted) return null;
         Navigator.pushAndRemoveUntil(

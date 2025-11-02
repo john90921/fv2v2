@@ -243,8 +243,8 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                               newImagePath: imageUrl,
                               isRemoveImage: IsDeletedImage,
                             );
-                            if(context.mounted){
-                            showMessage(context: context, message: message!);
+                            if(context.mounted && message != null){
+                            showMessage(context: context, message: message);
                             }
                           
                             Navigator.pop(context);
